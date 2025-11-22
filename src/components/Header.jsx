@@ -1,21 +1,60 @@
-import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.jsx';
 import './Header.css';
 
 function Header() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isLoggedIn, login, logout } = useAuth();
+
+  const handleLogin = () => {
+    navigate('/login');
+  };
+
+  const handleLogout = () => {
+    logout();
+  };
+
+  const isActive = (path) => {
+    if (path === '/') {
+      return location.pathname === '/' || location.pathname.startsWith('/recruiting');
+    }
+    return location.pathname.startsWith(path);
+  };
+
   return (
-    <header className="header">
-      <div className="header-container">
-        <div className="logo">HSPACE</div>
-        <nav className="nav">
-          <a href="/" className="nav-link">NOTICE</a>
-          <a href="/" className="nav-link">CALENDAR</a>
-          <a href="/" className="nav-link">INTRODUCE</a>
-          <a href="/" className="nav-link active">RESERVATION</a>
-          <a href="/" className="nav-link">HISTORY</a>
-          <a href="/" className="nav-link">EVENT</a>
-        </nav>
+    <nav className="top-nav">
+      <div className="nav-left">
+        <h1 className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+          HSPACE
+        </h1>
       </div>
-    </header>
+      <div className="nav-center">
+        <button
+          className={`nav-link ${isActive('/club') ? 'active' : ''}`}
+          onClick={() => navigate('/club')}
+        >
+          Club
+        </button>
+        <button
+          className={`nav-link ${isActive('/') ? 'active' : ''}`}
+          onClick={() => navigate('/')}
+        >
+          Recruiting
+        </button>
+      </div>
+      <div className="nav-right">
+        {isLoggedIn ? (
+          <button className="login-button" onClick={handleLogout}>
+            로그아웃
+          </button>
+        ) : (
+          <button className="login-button" onClick={handleLogin}>
+            로그인
+          </button>
+        )}
+      </div>
+    </nav>
   );
 }
 
