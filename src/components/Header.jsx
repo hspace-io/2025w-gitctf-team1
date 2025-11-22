@@ -37,8 +37,8 @@ function Header() {
           Club
         </button>
         <button
-          className={`nav-link ${isActive('/') ? 'active' : ''}`}
-          onClick={() => navigate('/')}
+          className={`nav-link ${isActive('/recruiting') ? 'active' : ''}`}
+          onClick={() => navigate('/recruiting')}
         >
           Recruiting
         </button>
