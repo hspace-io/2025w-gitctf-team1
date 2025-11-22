@@ -1,8 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const db = require('./db'); 
-const authRouter = require('./routes/auth'); 
+const db = require('./db');
+const authRouter = require('./routes/auth');
+const clubRoutes = require('./routes/club');
 
 const app = express();
 const PORT = 4000;
@@ -31,9 +32,14 @@ try {
 
 app.use('/auth', authRouter);
 
+console.log("[*] Loading SQLite DB...");
+app.set("db", db);
+
 app.get('/', (req, res) => {
   res.send('Team1 Service is Running!');
 });
+
+app.use('/api/clubs', clubRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
