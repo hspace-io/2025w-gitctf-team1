@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
-import Intro from './component/intro.jsx';
-import Club from './component/Club.jsx';
+import Intro from './components/intro.jsx';
+import Club from './components/Club.jsx';
 import Header from './components/Header';
 import BoardList from './pages/BoardList';
 import PostDetail from './pages/PostDetail';
