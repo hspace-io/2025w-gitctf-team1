@@ -4,7 +4,8 @@ const morgan = require('morgan');
 
 const db = require('./db.js');
 const authRouter = require('./routes/auth'); 
-const eventRouter = require('./routes/event.js');
+const eventRouter = require('./routes/event.js'); 
+
 
 const app = express();
 const PORT = 4000;
@@ -57,9 +58,11 @@ if (db) {
                 difficulty TEXT CHECK(difficulty IN ('LOW', 'MID', 'HIGH')),
                 title TEXT NOT NULL,
                 description TEXT,
+                authorId INTEGER, 
                 CreatedAt TEXT DEFAULT (datetime('now')),
                 UpdatedAt TEXT DEFAULT (datetime('now')),
-                FOREIGN KEY(clubName) REFERENCES Club(clubName)
+                FOREIGN KEY(clubName) REFERENCES Club(clubName),
+                FOREIGN KEY(authorId) REFERENCES users(id) 
             )
         `);
         

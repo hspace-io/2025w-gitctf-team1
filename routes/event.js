@@ -1,5 +1,6 @@
 const express = require('express');
 const crypto = require('crypto');
+const { authenticateToken } = require('../controller/middleWare'); 
 
 const router = express.Router();
 
@@ -35,7 +36,9 @@ router.use((req, res, next) => {
     next();
 });
 
-router.post('/', (req, res) => {
+router.post('/', authenticateToken, (req, res) => {
+    const authorId = req.userId; 
+    
     const { 
         clubName, category, field, eventDate, 
         recruitmentCount, difficulty, title, description 
@@ -66,8 +69,8 @@ router.post('/', (req, res) => {
         const sql = `
             INSERT INTO Event (
                 id, clubName, category, field, eventDate, 
-                recruitmentCount, difficulty, title, description, CreatedAt, UpdatedAt
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                recruitmentCount, difficulty, title, description, authorId, CreatedAt, UpdatedAt
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         
         const stmt = db.prepare(sql);
@@ -81,6 +84,7 @@ router.post('/', (req, res) => {
             difficulty || null, 
             title, 
             description || null,
+            authorId, 
             now, 
             now
         );
@@ -137,7 +141,7 @@ router.get('/', (req, res) => {
             queryParams.push(upperDifficulty);
         } else {
             return res.status(400).json({ 
-                error: `Invalid difficulty filter. Must be one of: ${VALID_DIFFICULTIES.join(', ')}` 
+                error: `Invalid difficulty value. Must be one of: ${VALID_DIFFICULTIES.join(', ')}` 
             });
         }
     }
@@ -192,8 +196,11 @@ router.get('/:id', (req, res) => {
     }
 });
 
-router.put('/:id', (req, res) => {
+// PUT: 인증 미들웨어 적용 및 권한 검증 추가
+router.put('/:id', authenticateToken, (req, res) => {
     const { id } = req.params;
+    const currentUserId = req.userId; // 현재 로그인된 사용자 ID
+
     const { 
         clubName, category, field, eventDate, 
         recruitmentCount, difficulty, title, description 
@@ -218,10 +225,17 @@ router.put('/:id', (req, res) => {
     }
 
     try {
-        const existingPost = db.prepare("SELECT id FROM Event WHERE id = ?").get(id);
+        // 1. 기존 게시글의 authorId를 조회
+        const existingPost = db.prepare("SELECT id, authorId FROM Event WHERE id = ?").get(id);
         if (!existingPost) {
             return res.status(404).json({ error: "Event with the specified ID not found for update." });
         }
+        
+        // 2. 권한 검증: 현재 로그인된 사용자 ID와 글 작성자 ID가 다르면 거부 (IDOR 보완)
+        if (existingPost.authorId !== currentUserId) {
+             return res.status(403).json({ error: "Authorization denied. You are not the author of this post." });
+        }
+
 
         const now = new Date().toISOString();
         
@@ -261,10 +275,25 @@ router.put('/:id', (req, res) => {
 });
 
 
-router.delete('/:id', (req, res) => {
+// DELETE: 인증 미들웨어 적용 및 권한 검증 추가
+router.delete('/:id', authenticateToken, (req, res) => {
     const { id } = req.params;
+    const currentUserId = req.userId; // 현재 로그인된 사용자 ID
 
     try {
+        // 1. 삭제 전 작성자 ID를 확인하기 위해 기존 글을 조회
+        const existingPost = db.prepare("SELECT authorId FROM Event WHERE id = ?").get(id);
+        
+        if (!existingPost) {
+            return res.status(404).json({ error: "Event with the specified ID not found for deletion." });
+        }
+        
+        // 2. 권한 검증: 현재 로그인된 사용자 ID와 글 작성자 ID가 다르면 거부 (IDOR 보완)
+        if (existingPost.authorId !== currentUserId) {
+             return res.status(403).json({ error: "Authorization denied. You are not the author of this post." });
+        }
+
+
         const stmt = db.prepare("DELETE FROM Event WHERE id = ?");
         const result = stmt.run(id);
 
