@@ -26,7 +26,7 @@ const containsBannedSql = (input) => {
     });
 };
 
-const db = require('./db.js'); 
+const db = require('../db.js'); 
 
 router.use((req, res, next) => {
     if (!db) {
@@ -45,7 +45,9 @@ router.post('/', (req, res) => {
         return res.status(400).json({ error: "Required fields (title, category, clubName) must be provided." });
     }
 
-    if (!VALID_CATEGORIES.includes(category)) {
+    const upperCategory = category.toUpperCase();
+
+    if (!VALID_CATEGORIES.includes(upperCategory)) { 
         return res.status(400).json({ 
             error: `Invalid category value. Must be one of: ${VALID_CATEGORIES.join(', ')}`
         });
@@ -72,7 +74,7 @@ router.post('/', (req, res) => {
         stmt.run(
             eventId, 
             clubName, 
-            category, 
+            upperCategory, 
             field || null, 
             eventDate || null, 
             recruitmentCount || null, 
@@ -201,7 +203,9 @@ router.put('/:id', (req, res) => {
         return res.status(400).json({ error: "Required fields (title, category, clubName) must be provided." });
     }
 
-    if (!VALID_CATEGORIES.includes(category)) {
+    const upperCategory = category.toUpperCase();
+
+    if (!VALID_CATEGORIES.includes(upperCategory)) {
         return res.status(400).json({ 
             error: `Invalid category value. Must be one of: ${VALID_CATEGORIES.join(', ')}`
         });
@@ -232,7 +236,7 @@ router.put('/:id', (req, res) => {
         const stmt = db.prepare(sql);
         stmt.run(
             clubName, 
-            category, 
+            upperCategory, 
             field || null, 
             eventDate || null, 
             recruitmentCount || null, 
