@@ -16,6 +16,9 @@ const STORAGE_KEYS = {
   COMMENTS: 'teammate_comments',
   NEXT_EVENT_ID: 'next_event_id',
   NEXT_COMMENT_ID: 'next_comment_id',
+  USERS: 'teammate_users',  // 사용자 목록
+  NEXT_USER_ID: 'next_user_id',
+  CURRENT_USER: 'current_user',  // 로그인된 사용자
 };
 
 // 초기 샘플 데이터
@@ -32,6 +35,10 @@ function initializeLocalStorage() {
   if (!localStorage.getItem(STORAGE_KEYS.COMMENTS)) {
     localStorage.setItem(STORAGE_KEYS.COMMENTS, JSON.stringify(INITIAL_COMMENTS));
     localStorage.setItem(STORAGE_KEYS.NEXT_COMMENT_ID, '1');
+  }
+  if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
+    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.NEXT_USER_ID, '1');
   }
 }
 
@@ -93,6 +100,36 @@ class API {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Network response was not ok');
+      return response.json();
+    }
+  }
+
+  // 로그인
+  async login(username, password) {
+    if (API_CONFIG.USE_LOCAL_STORAGE) {
+      return this._loginLocalStorage(username, password);
+    } else {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      if (!response.ok) throw new Error('Login failed');
+      return response.json();
+    }
+  }
+
+  // 회원가입
+  async signUp(userData) {
+    if (API_CONFIG.USE_LOCAL_STORAGE) {
+      return this._signUpLocalStorage(userData);
+    } else {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/auth/signUp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData),
+      });
+      if (!response.ok) throw new Error('Sign up failed');
       return response.json();
     }
   }
@@ -217,6 +254,79 @@ class API {
           resolve({ success: true });
         }
       }, 100);
+    });
+  }
+
+  // 로컬스토리지 로그인
+  _loginLocalStorage(username, password) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
+        const user = users.find(u => u.username === username && u.password === password);
+
+        if (user) {
+          const userInfo = {
+            id: user.id,
+            username: user.username,
+            name: user.name,
+            nickname: user.nickname,
+            schoolName: user.schoolName,
+            clubName: user.clubName,
+          };
+          localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(userInfo));
+          resolve({
+            success: true,
+            user: userInfo,
+            token: `fake-jwt-token-${user.id}`, // 가짜 토큰
+          });
+        } else {
+          reject(new Error('아이디 또는 비밀번호가 올바르지 않습니다.'));
+        }
+      }, 300);
+    });
+  }
+
+  // 로컬스토리지 회원가입
+  _signUpLocalStorage(userData) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
+        const nextId = parseInt(localStorage.getItem(STORAGE_KEYS.NEXT_USER_ID) || '1');
+
+        // 중복 아이디 체크
+        const existingUser = users.find(u => u.username === userData.username);
+        if (existingUser) {
+          reject(new Error('이미 사용 중인 아이디입니다.'));
+          return;
+        }
+
+        const newUser = {
+          id: nextId,
+          schoolName: userData.schoolName,
+          clubName: userData.clubName,
+          name: userData.name,
+          nickname: userData.nickname,
+          username: userData.username,
+          password: userData.password,
+          createdAt: new Date().toISOString(),
+        };
+
+        users.push(newUser);
+        localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+        localStorage.setItem(STORAGE_KEYS.NEXT_USER_ID, String(nextId + 1));
+
+        resolve({
+          success: true,
+          user: {
+            id: newUser.id,
+            username: newUser.username,
+            name: newUser.name,
+            nickname: newUser.nickname,
+            schoolName: newUser.schoolName,
+            clubName: newUser.clubName,
+          }
+        });
+      }, 300);
     });
   }
 }

@@ -1,22 +1,45 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
+
+  // 페이지 로드 시 로그인 상태 복원
+  useEffect(() => {
+    const currentUser = localStorage.getItem('current_user');
+    const token = localStorage.getItem('token');
+    
+    if (currentUser && token) {
+      try {
+        setUser(JSON.parse(currentUser));
+        setIsLoggedIn(true);
+      } catch (err) {
+        console.error('Failed to restore login state:', err);
+        localStorage.removeItem('current_user');
+        localStorage.removeItem('token');
+      }
+    }
+  }, []);
 
   // API 교체: 로그인
   // POST /auth/login (username, password)
-  const login = () => {
+  // API에서 받은 사용자 정보를 저장
+  const login = (userData) => {
+    setUser(userData);
     setIsLoggedIn(true);
   };
 
   const logout = () => {
+    setUser(null);
     setIsLoggedIn(false);
+    localStorage.removeItem('current_user');
+    localStorage.removeItem('token');
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

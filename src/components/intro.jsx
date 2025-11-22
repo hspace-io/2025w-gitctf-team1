@@ -6,15 +6,11 @@ import './intro.css';
 
 function Intro() {
   const navigate = useNavigate();
-  const { isLoggedIn, login, logout } = useAuth();
+  const { isLoggedIn, user } = useAuth();
   
   const [recruitingPosts, setRecruitingPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  // API 교체: 현재 로그인한 사용자 정보
-  // GET /auth/me (또는 로그인 응답에서 사용자 정보 저장)
-  const [currentUser, setCurrentUser] = useState(null);
 
   // API 교체: 모집글 목록 조회
   // GET /events
@@ -65,31 +61,6 @@ function Intro() {
     fetchRecruitingPosts();
   }, []);
 
-  // API 교체: 로그인 상태일 때 사용자 정보 조회
-  // GET /auth/me
-  useEffect(() => {
-    const fetchCurrentUser = async () => {
-      if (!isLoggedIn) {
-        setCurrentUser(null);
-        return;
-      }
-
-      try {
-        // API 교체: 현재 로그인한 사용자 정보 가져오기
-        // const response = await fetch('/auth/me', {
-        setCurrentUser({
-          name: 'JungWooJJING',
-          alias: 'JungWooJJING',
-          username: 'cuby5577@gmail.com',
-        });
-      } catch (err) {
-        console.error('사용자 정보 조회 실패:', err);
-        setCurrentUser(null);
-      }
-    };
-
-    fetchCurrentUser();
-  }, [isLoggedIn]);
 
   const getCategoryLabel = (category) => {
     const categoryMap = {
@@ -127,10 +98,10 @@ function Intro() {
   return (
     <div className="intro-container">
       <main className="intro-main">
-        {isLoggedIn && currentUser && (
+        {isLoggedIn && user && (
           <div className="profile-section">
             <div className="welcome-bubble">
-              반가워요, {currentUser.alias || currentUser.name} 님
+              반가워요, {user.name} 님
             </div>
             <div className="profile-picture">
               <div className="profile-placeholder">
@@ -141,7 +112,8 @@ function Intro() {
                 </svg>
               </div>
             </div>
-            <div className="user-email">{currentUser.username}</div>
+            <div className="user-email">{user.username}</div>
+            <div className="user-club">{user.schoolName} - {user.clubName}</div>
           </div>
         )}
 

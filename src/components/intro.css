@@ -176,6 +176,12 @@
 .user-email {
   font-size: 1rem;
   color: #666666;
+  margin-bottom: 0.5rem;
+}
+
+.user-club {
+  font-size: 0.9rem;
+  color: #888888;
   margin-bottom: 1rem;
 }
 

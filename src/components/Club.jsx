@@ -5,18 +5,17 @@ import './club.css';
 
 function Club() {
   const navigate = useNavigate();
-  const { isLoggedIn, login, logout } = useAuth();
+  const { isLoggedIn, user } = useAuth();
   const [selectedClub, setSelectedClub] = useState(null);
   const [editingMember, setEditingMember] = useState(null);
   const [editForm, setEditForm] = useState({ name: '', username: '', tags: [] });
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // API 교체: 현재 로그인한 사용자 정보
-  // GET /auth/me (또는 로그인 응답에서 사용자 정보 저장)
-  const currentUser = {
-    username: '@security_kim',
-    name: '김보안',
+  // 현재 로그인한 사용자 정보 (AuthContext에서 가져옴)
+  const currentUser = user || {
+    username: '',
+    name: '',
     isAdmin: false,
   };
 
