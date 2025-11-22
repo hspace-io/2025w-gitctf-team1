@@ -444,3 +444,252 @@
   font-weight: 500;
 }
 
+/* 멤버 편집/삭제 기능 */
+.member-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: 1rem;
+}
+
+.edit-button,
+.delete-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+}
+
+.edit-button:hover,
+.delete-button:hover {
+  background-color: #e0e0e0;
+}
+
+.edit-icon {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #666666;
+  border-radius: 2px;
+  position: relative;
+  display: block;
+}
+
+.edit-icon::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid #666666;
+  border-top: 4px solid #666666;
+  border-bottom: 4px solid transparent;
+}
+
+.edit-button:hover .edit-icon {
+  border-color: #667eea;
+}
+
+.edit-button:hover .edit-icon::after {
+  border-right-color: #667eea;
+  border-top-color: #667eea;
+}
+
+.delete-icon {
+  width: 16px;
+  height: 16px;
+  position: relative;
+  display: block;
+}
+
+.delete-icon::before,
+.delete-icon::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 2px;
+  background-color: #666666;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.delete-icon::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.delete-button:hover .delete-icon::before,
+.delete-button:hover .delete-icon::after {
+  background-color: #ef4444;
+}
+
+.member-edit-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem;
+}
+
+.edit-form-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit-input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #000000;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.edit-input:focus {
+  outline: none;
+  border-color: #000000;
+}
+
+.edit-form-tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.edit-tag-button {
+  padding: 0.4rem 0.8rem;
+  border: 2px solid #000000;
+  background-color: #ffffff;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #000000;
+}
+
+.edit-tag-button:hover {
+  border-color: #000000;
+  background-color: #f5f5f5;
+  color: #000000;
+}
+
+.edit-tag-button.active {
+  border-color: #000000;
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.edit-form-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.save-button,
+.cancel-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.save-button {
+  background-color: #000000;
+  color: #ffffff;
+  border: 1px solid #000000;
+}
+
+.save-button:hover {
+  background-color: #333333;
+  border-color: #333333;
+}
+
+.cancel-button {
+  background-color: #ffffff;
+  color: #000000;
+  border: 1px solid #000000;
+}
+
+.cancel-button:hover {
+  background-color: #f5f5f5;
+  border-color: #000000;
+}
+
+/* 삭제 확인 다이얼로그 */
+.delete-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.delete-confirm-modal {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.delete-confirm-modal p {
+  font-size: 1.1rem;
+  color: #000000;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.delete-confirm-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.confirm-delete-button,
+.cancel-delete-button {
+  padding: 0.6rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.confirm-delete-button {
+  background-color: #ef4444;
+  color: #ffffff;
+}
+
+.confirm-delete-button:hover {
+  background-color: #dc2626;
+}
+
+.cancel-delete-button {
+  background-color: #e0e0e0;
+  color: #000000;
+}
+
+.cancel-delete-button:hover {
+  background-color: #d0d0d0;
+}
+

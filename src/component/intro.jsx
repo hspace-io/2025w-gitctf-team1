@@ -11,15 +11,21 @@ function Intro() {
   const [recruitingPosts, setRecruitingPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // API 교체: 현재 로그인한 사용자 정보
+  // GET /auth/me (또는 로그인 응답에서 사용자 정보 저장)
+  const [currentUser, setCurrentUser] = useState(null);
 
-  // API 교체
+  // API 교체: 모집글 목록 조회
+  // GET /events
+  // 목록 조회 최신순 4개 정도 가져오기
   useEffect(() => {
     const fetchRecruitingPosts = async () => {
       try {
         setIsLoading(true);
         setError(null);
         
-        const response = await fetch('/api/recruiting-posts?limit=5', {
+        const response = await fetch('/events', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -58,6 +64,32 @@ function Intro() {
 
     fetchRecruitingPosts();
   }, []);
+
+  // API 교체: 로그인 상태일 때 사용자 정보 조회
+  // GET /auth/me
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      if (!isLoggedIn) {
+        setCurrentUser(null);
+        return;
+      }
+
+      try {
+        // API 교체: 현재 로그인한 사용자 정보 가져오기
+        // const response = await fetch('/auth/me', {
+        setCurrentUser({
+          name: 'JungWooJJING',
+          alias: 'JungWooJJING',
+          username: 'cuby5577@gmail.com',
+        });
+      } catch (err) {
+        console.error('사용자 정보 조회 실패:', err);
+        setCurrentUser(null);
+      }
+    };
+
+    fetchCurrentUser();
+  }, [isLoggedIn]);
 
   const getCategoryLabel = (category) => {
     const categoryMap = {
@@ -138,10 +170,10 @@ function Intro() {
       </nav>
 
       <main className="intro-main">
-        {isLoggedIn && (
+        {isLoggedIn && currentUser && (
           <div className="profile-section">
             <div className="welcome-bubble">
-              반가워요, JungWooJJING 님
+              반가워요, {currentUser.alias || currentUser.name} 님
             </div>
             <div className="profile-picture">
               <div className="profile-placeholder">
@@ -152,7 +184,7 @@ function Intro() {
                 </svg>
               </div>
             </div>
-            <div className="user-email">cuby5577@gmail.com</div>
+            <div className="user-email">{currentUser.username}</div>
           </div>
         )}
 
