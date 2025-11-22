@@ -157,12 +157,11 @@ function PostDetail() {
                 <span className="post-divider">|</span>
                 <span className="post-date-text">{post.date}</span>
                 <span className="post-divider">|</span>
-                <span className="post-views-text">👁 {post.views}</span>
+                <span className="post-views-text">조회 {post.views}</span>
               </div>
             </div>
 
             <h1 className="post-detail-title">{post.title}</h1>
-            <p className="post-detail-description">{post.description}</p>
 
             <div className="post-detail-info">
               <div className="detail-info-item">
@@ -190,6 +189,32 @@ function PostDetail() {
                 </div>
               </div>
             </div>
+
+            {post.files && post.files.length > 0 && (
+              <div className="attachments-list">
+                {post.files.map((file, index) => (
+                  <a
+                    key={index}
+                    href={file.data}
+                    download={file.name}
+                    className="attachment-item"
+                  >
+                    <span className="attachment-icon">
+                      {file.type.startsWith('image/') ? '🖼️' :
+                       file.type === 'application/pdf' ? '📄' :
+                       file.type.includes('word') ? '📝' : '📎'}
+                    </span>
+                    <span className="attachment-name">{file.name}</span>
+                    <span className="attachment-size">
+                      {file.size < 1024 ? file.size + ' B' :
+                       file.size < 1024 * 1024 ? (file.size / 1024).toFixed(1) + ' KB' :
+                       (file.size / (1024 * 1024)).toFixed(1) + ' MB'}
+                    </span>
+                    <span className="attachment-download">다운로드</span>
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="post-body">

@@ -22,6 +22,8 @@ function PostWrite() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [files, setFiles] = useState([]);
+  const [existingFiles, setExistingFiles] = useState([]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -47,6 +49,9 @@ function PostWrite() {
           clubName: post.clubName || '',
           content: post.content
         });
+        if (post.files) {
+          setExistingFiles(post.files);
+        }
       }
     } catch (error) {
       console.error('게시글 불러오기 실패:', error);
@@ -61,6 +66,52 @@ function PostWrite() {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleFileChange = (e) => {
+    const selectedFiles = Array.from(e.target.files);
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+
+    const validFiles = selectedFiles.filter(file => {
+      if (file.size > maxSize) {
+        alert(`${file.name}은(는) 5MB를 초과합니다.`);
+        return false;
+      }
+      if (!allowedTypes.includes(file.type)) {
+        alert(`${file.name}은(는) 허용되지 않는 파일 형식입니다.`);
+        return false;
+      }
+      return true;
+    });
+
+    // 파일을 Base64로 변환
+    validFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setFiles(prev => [...prev, {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          data: event.target.result
+        }]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleFileRemove = (index) => {
+    setFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleExistingFileRemove = (index) => {
+    setExistingFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
   const handleSubmit = async (e) => {
@@ -94,6 +145,7 @@ function PostWrite() {
     setLoading(true);
 
     try {
+      const allFiles = [...existingFiles, ...files];
       const postData = {
         type: formData.type,
         field: formData.field,
@@ -104,7 +156,8 @@ function PostWrite() {
         difficulty: formData.difficulty,
         author: formData.author,
         clubName: formData.clubName,
-        content: formData.content
+        content: formData.content,
+        files: allFiles
       };
 
       if (isEditMode) {
@@ -287,6 +340,60 @@ function PostWrite() {
               className="form-textarea"
               rows="15"
             />
+          </div>
+
+          <div className="form-group">
+            <label>첨부파일</label>
+            <div className="file-upload-area">
+              <input
+                type="file"
+                id="file-upload"
+                multiple
+                onChange={handleFileChange}
+                className="file-input"
+                accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.txt"
+              />
+              <label htmlFor="file-upload" className="file-upload-label">
+                <span className="upload-icon">+</span>
+                <span>파일 선택</span>
+                <span className="upload-hint">이미지, PDF, 문서 파일 (최대 5MB)</span>
+              </label>
+            </div>
+
+            {(existingFiles.length > 0 || files.length > 0) && (
+              <div className="file-list">
+                {existingFiles.map((file, index) => (
+                  <div key={`existing-${index}`} className="file-item">
+                    <div className="file-info">
+                      <span className="file-name">{file.name}</span>
+                      <span className="file-size">{formatFileSize(file.size)}</span>
+                    </div>
+                    <button
+                      type="button"
+                      className="file-remove-btn"
+                      onClick={() => handleExistingFileRemove(index)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+                {files.map((file, index) => (
+                  <div key={`new-${index}`} className="file-item">
+                    <div className="file-info">
+                      <span className="file-name">{file.name}</span>
+                      <span className="file-size">{formatFileSize(file.size)}</span>
+                    </div>
+                    <button
+                      type="button"
+                      className="file-remove-btn"
+                      onClick={() => handleFileRemove(index)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="form-actions">
