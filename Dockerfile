@@ -34,6 +34,12 @@ RUN apt-get update && \
     apt-get install -y nodejs npm curl && \
     apt-get clean
 
+# 32비트 환경 호환성 및 sqlite3 빌드를 위한 패키지 설치
+# python3-setuptools 를 추가했습니다!
+RUN apt-get update && \
+    apt-get install -y nodejs npm curl python3 python3-setuptools build-essential && \
+    apt-get clean
+
 # 작업 디렉터리 설정
 WORKDIR /app
 
