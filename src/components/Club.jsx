@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import api from '../services/api';
 import './club.css';
 
 function Club() {
@@ -11,6 +12,8 @@ function Club() {
   const [editForm, setEditForm] = useState({ name: '', username: '', tags: [] });
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [clubs, setClubs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // 현재 로그인한 사용자 정보 (AuthContext에서 가져옴)
   const currentUser = user || {
@@ -26,54 +29,37 @@ function Club() {
     return member.tags.includes('회장') || member.tags.includes('운영진') || currentUser.isAdmin;
   };
 
-  // API 교체: 동아리 목록 조회
-  // GET /clubs?schoolName=
-  const clubs = [
-    {
-      id: 1,
-      name: 'Pay1oad',
-      schoolName: '가천대학교',
-      description: '보안 및 해킹 기술을 연구하는 동아리입니다.',
-      president: '김보안',
-      members: [
-        { name: '김보안', username: '@security_kim', tags: ["회장", "운영진"]},
-        { name: '이해킹', username: '@hacker_lee', tags: ['운영진']},
-        { name: '박디버깅', username: '@debug_park', tags: ['부원']},
-        { name: '최게임', username: '@gamer_choi', tags: ['부원']},
-        { name: '정리버스', username: '@reverse_jung', tags: ['부원']},
-      ],
-    },
-    {
-      id: 2,
-      name: 'I want to sleep',
-      schoolName: '잠 부족',
-      description: '잠 자고 싶어요',
-      president: '홍웹',
-      members: [
-        { name: '홍웹', username: '@web_hong', tags: ['회장'] },
-        { name: '강프론트', username: '@frontend_kang', tags: ['운영진'] },
-        { name: '윤백엔드', username: '@backend_yoon', tags: ['부원'] },
-        { name: '임풀스택', username: '@fullstack_lim', tags: ['부원'] },
-        { name: '한디자인', username: '@design_han', tags: ['부원'] },
-      ],
-    },
-    {
-      id: 3,
-      name: 'I want to go home',
-      schoolName: '퇴근 요정',
-      description: '집에 가고 싶어요',
-      president: '송AI',
-      members: [
-        { name: '송AI', username: '@ai_song', tags: ['회장'] },
-        { name: '조머신러닝', username: '@ml_cho', tags: ['부원'] },
-      ],
-    },
-  ];
+  // API 명세서: GET /clubs - 동아리 목록 조회
+  useEffect(() => {
+    const fetchClubs = async () => {
+      try {
+        setIsLoading(true);
+        let endpoint = '/clubs';
+        if (searchQuery.trim()) {
+          endpoint = `/clubs?search=${encodeURIComponent(searchQuery)}`;
+        }
+        const data = await api.get(endpoint);
+        setClubs(data);
+      } catch (error) {
+        console.error('동아리 목록 조회 실패:', error);
+        setClubs([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const handleClubClick = (club) => {
-    // API 교체: 동아리 상세 조회
-    // GET /clubs/:id
-    setSelectedClub(club);
+    fetchClubs();
+  }, [searchQuery]);
+
+  const handleClubClick = async (club) => {
+    // API 명세서: GET /clubs/:id - 동아리 상세 조회
+    try {
+      const clubDetail = await api.get(`/clubs/${club.id}`);
+      setSelectedClub(clubDetail || club);
+    } catch (error) {
+      console.error('동아리 상세 조회 실패:', error);
+      setSelectedClub(club);
+    }
   };
 
   const handleCloseDetail = () => {
@@ -96,7 +82,6 @@ function Club() {
       // API 교체: 사용자 정보 수정
       // PUT /users/:id (User 정보 수정 API 필요)
       // 또는 PUT /clubs/:id/members/:memberId (멤버 정보 수정 API 필요)
-
 
       const updatedClub = { ...selectedClub };
       updatedClub.members[memberIndex] = {
@@ -161,8 +146,7 @@ function Club() {
         </div>
 
         <div className="club-search-container">
-          {/* API 교체: 검색어를 쿼리 파라미터로 전달 */}
-          {/* GET /clubs?schoolName=&search= (검색어 파라미터) */}
+          {/* API 명세서: GET /clubs?search= - 검색어를 쿼리 파라미터로 전달 */}
           <input
             type="text"
             className="club-search-input"
@@ -173,27 +157,14 @@ function Club() {
         </div>
 
         <div className="club-list">
-          {(() => {
-            // API 교체: 검색은 백엔드에서 처리하므로 클라이언트 필터링 제거
-            // 검색어가 있을 때는 API 호출: GET /clubs?search={searchQuery}
-            const filteredClubs = clubs.filter((club) => {
-              if (!searchQuery.trim()) return true;
-              const query = searchQuery.toLowerCase();
-              return (
-                club.name.toLowerCase().includes(query) ||
-                club.description.toLowerCase().includes(query)
-              );
-            });
-
-            if (filteredClubs.length === 0) {
-              return (
-                <div className="club-empty-message">
-                  검색 결과가 없습니다.
-                </div>
-              );
-            }
-
-            return filteredClubs.map((club) => (
+          {isLoading ? (
+            <div className="club-empty-message">로딩 중...</div>
+          ) : clubs.length === 0 ? (
+            <div className="club-empty-message">
+              {searchQuery ? '검색 결과가 없습니다.' : '등록된 동아리가 없습니다.'}
+            </div>
+          ) : (
+            clubs.map((club) => (
               <div
                 key={club.id}
                 className="club-card"
@@ -207,8 +178,8 @@ function Club() {
                   <span className="club-member-count">부원 {club.members.length}명</span>
                 </div>
               </div>
-            ));
-          })()}
+            ))
+          )}
         </div>
       </main>
 

@@ -19,12 +19,56 @@ const STORAGE_KEYS = {
   USERS: 'teammate_users',  // 사용자 목록
   NEXT_USER_ID: 'next_user_id',
   CURRENT_USER: 'current_user',  // 로그인된 사용자
+  CLUBS: 'teammate_clubs',  // /clubs - 동아리
+  NEXT_CLUB_ID: 'next_club_id',
 };
 
 // 초기 샘플 데이터
 const INITIAL_EVENTS = [];
 
 const INITIAL_COMMENTS = [];
+
+const INITIAL_CLUBS = [
+  {
+    id: 1,
+    name: 'Pay1oad',
+    schoolName: '가천대학교',
+    description: '보안 및 해킹 기술을 연구하는 동아리입니다.',
+    president: '김보안',
+    members: [
+      { name: '김보안', username: '@security_kim', tags: ["회장", "운영진"]},
+      { name: '이해킹', username: '@hacker_lee', tags: ['운영진']},
+      { name: '박디버깅', username: '@debug_park', tags: ['부원']},
+      { name: '최게임', username: '@gamer_choi', tags: ['부원']},
+      { name: '정리버스', username: '@reverse_jung', tags: ['부원']},
+    ],
+  },
+  {
+    id: 2,
+    name: 'I want to sleep',
+    schoolName: '잠 부족',
+    description: '잠 자고 싶어요',
+    president: '홍웹',
+    members: [
+      { name: '홍웹', username: '@web_hong', tags: ['회장'] },
+      { name: '강프론트', username: '@frontend_kang', tags: ['운영진'] },
+      { name: '윤백엔드', username: '@backend_yoon', tags: ['부원'] },
+      { name: '임풀스택', username: '@fullstack_lim', tags: ['부원'] },
+      { name: '한디자인', username: '@design_han', tags: ['부원'] },
+    ],
+  },
+  {
+    id: 3,
+    name: 'I want to go home',
+    schoolName: '퇴근 요정',
+    description: '집에 가고 싶어요',
+    president: '송AI',
+    members: [
+      { name: '송AI', username: '@ai_song', tags: ['회장'] },
+      { name: '조머신러닝', username: '@ml_cho', tags: ['부원'] },
+    ],
+  },
+];
 
 // 로컬스토리지 초기화
 function initializeLocalStorage() {
@@ -39,6 +83,10 @@ function initializeLocalStorage() {
   if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify([]));
     localStorage.setItem(STORAGE_KEYS.NEXT_USER_ID, '1');
+  }
+  if (!localStorage.getItem(STORAGE_KEYS.CLUBS)) {
+    localStorage.setItem(STORAGE_KEYS.CLUBS, JSON.stringify(INITIAL_CLUBS));
+    localStorage.setItem(STORAGE_KEYS.NEXT_CLUB_ID, '4');
   }
 }
 
@@ -148,6 +196,34 @@ class API {
             const id = parseInt(endpoint.split('/')[2]);
             const event = events.find(e => e.id === id);
             resolve(event || null);
+          }
+        }
+        // /clubs 엔드포인트 (동아리 목록 조회, 상세 조회)
+        else if (endpoint.startsWith('/clubs')) {
+          const clubs = JSON.parse(localStorage.getItem(STORAGE_KEYS.CLUBS) || '[]');
+
+          if (endpoint === '/clubs' || endpoint.startsWith('/clubs?')) {
+            // 쿼리 파라미터 처리 (schoolName, search 등)
+            let filteredClubs = [...clubs];
+            const urlParams = new URLSearchParams(endpoint.split('?')[1] || '');
+            const schoolName = urlParams.get('schoolName');
+            const search = urlParams.get('search');
+
+            if (schoolName) {
+              filteredClubs = filteredClubs.filter(c => c.schoolName === schoolName);
+            }
+            if (search) {
+              const query = search.toLowerCase();
+              filteredClubs = filteredClubs.filter(c =>
+                c.name.toLowerCase().includes(query) ||
+                c.description.toLowerCase().includes(query)
+              );
+            }
+            resolve(filteredClubs);
+          } else {
+            const id = parseInt(endpoint.split('/')[2]);
+            const club = clubs.find(c => c.id === id);
+            resolve(club || null);
           }
         }
         // 댓글 관련 (다른 팀원 담당)

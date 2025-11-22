@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import api from '../services/api';
 import './intro.css';
 
 
@@ -12,47 +13,20 @@ function Intro() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // API 교체: 모집글 목록 조회
-  // GET /events
-  // 목록 조회 최신순 4개 정도 가져오기
+  // API 명세서: GET /events - 모집글 목록 조회
+  // 목록 조회 최신순 5개 정도 가져오기
   useEffect(() => {
     const fetchRecruitingPosts = async () => {
       try {
         setIsLoading(true);
         setError(null);
         
-        const response = await fetch('/events', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-          console.warn('API가 아직 준비되지 않았습니다. 개발 모드에서는 빈 데이터를 사용합니다.');
-          setRecruitingPosts([]);
-          setIsLoading(false);
-          return;
-        }
-
-        const data = await response.json();
+        const data = await api.get('/events');
         setRecruitingPosts(data);
       } catch (err) {
         console.error('구인글 조회 실패:', err);
-        
-        if (err.message.includes('JSON') || err.message.includes('<!doctype')) {
-          console.warn('API가 아직 준비되지 않았습니다. 개발 모드에서는 빈 데이터를 사용합니다.');
-          setError(null);
-          setRecruitingPosts([]);
-        } else {
-          setError(err.message || '구인글을 불러오는데 실패했습니다.');
-          setRecruitingPosts([]);
-        }
+        setError(err.message || '구인글을 불러오는데 실패했습니다.');
+        setRecruitingPosts([]);
       } finally {
         setIsLoading(false);
       }
@@ -139,7 +113,7 @@ function Intro() {
                 <div key={post.id} className="recruiting-card">
                   <div className="card-top">
                     <div className="card-tags">
-                      <span className="card-tag">{getCategoryLabel(post.category)}</span>
+                      <span className="card-tag">{getCategoryLabel(post.type || post.category)}</span>
                       <span className="card-tag">{post.field}</span>
                     </div>
                     <div className="card-views">
@@ -158,11 +132,11 @@ function Intro() {
                   <div className="card-info">
                     <div className="info-item">
                       <span className="info-label">일시</span>
-                      <span className="info-value">{formatDate(post.eventDate)}</span>
+                      <span className="info-value">{formatDate(post.schedule || post.eventDate)}</span>
                     </div>
                     <div className="info-item">
                       <span className="info-label">모집</span>
-                      <span className="info-value">{post.recruitmentCount}명</span>
+                      <span className="info-value">{post.recruitCount || post.recruitmentCount}명</span>
                     </div>
                     <div className="info-item">
                       <span className="info-label">난이도</span>
@@ -171,7 +145,7 @@ function Intro() {
                   </div>
                   <div className="card-bottom">
                     <span className="card-club">{post.clubName}</span>
-                    <span className="card-date">{formatDateDot(post.createdAt)}</span>
+                    <span className="card-date">{formatDateDot(post.date || post.createdAt)}</span>
                   </div>
                 </div>
               ))
