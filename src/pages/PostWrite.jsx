@@ -13,6 +13,8 @@ function PostWrite() {
     field: 'WEB',
     title: '',
     description: '',
+    startDate: '',
+    endDate: '',
     schedule: '',
     recruitCount: '',
     difficulty: 'BEGINNER',
@@ -37,11 +39,27 @@ function PostWrite() {
       // API 명세서: GET /events/:id - 모집글 상세 조회 (수정용)
       const post = await api.get(`/events/${id}`);
       if (post) {
+        let startDate = '';
+        let endDate = '';
+        
+        if (post.schedule) {
+          if (post.schedule.includes('~')) {
+            const [start, end] = post.schedule.split('~');
+            startDate = start.trim().split('T')[0];
+            endDate = end.trim().split('T')[0];
+          } else {
+            startDate = post.schedule.split('T')[0];
+            endDate = post.schedule.split('T')[0];
+          }
+        }
+        
         setFormData({
           type: post.type,
           field: post.field,
           title: post.title,
           description: post.description,
+          startDate: startDate,
+          endDate: endDate,
           schedule: post.schedule,
           recruitCount: post.recruitCount,
           difficulty: post.difficulty,
@@ -129,8 +147,12 @@ function PostWrite() {
       alert('작성자를 입력해주세요.');
       return;
     }
-    if (!formData.schedule) {
-      alert('일시를 입력해주세요.');
+    if (!formData.startDate) {
+      alert('시작 일시를 입력해주세요.');
+      return;
+    }
+    if (!formData.endDate) {
+      alert('종료 일시를 입력해주세요.');
       return;
     }
     if (!formData.recruitCount || formData.recruitCount <= 0) {
@@ -145,13 +167,18 @@ function PostWrite() {
     setLoading(true);
 
     try {
+      // 시작 일시와 종료 일시를 합쳐서 schedule 생성 (날짜만)
+      const schedule = formData.startDate === formData.endDate
+        ? formData.startDate
+        : `${formData.startDate}~${formData.endDate}`;
+
       const allFiles = [...existingFiles, ...files];
       const postData = {
         type: formData.type,
         field: formData.field,
         title: formData.title,
         description: formData.description,
-        schedule: formData.schedule,
+        schedule: schedule,
         recruitCount: parseInt(formData.recruitCount),
         difficulty: formData.difficulty,
         author: formData.author,
@@ -257,14 +284,29 @@ function PostWrite() {
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="schedule">일시 *</label>
-              <input
-                type="date"
-                id="schedule"
-                name="schedule"
-                value={formData.schedule}
-                onChange={handleChange}
-                className="form-input"
-              />
+              <div className="schedule-input-wrapper">
+                <div className="schedule-input-item">
+                  <input
+                    type="date"
+                    id="startDate"
+                    name="startDate"
+                    value={formData.startDate}
+                    onChange={handleChange}
+                    className="form-input"
+                  />
+                </div>
+                <span className="schedule-separator">~</span>
+                <div className="schedule-input-item">
+                  <input
+                    type="date"
+                    id="endDate"
+                    name="endDate"
+                    value={formData.endDate}
+                    onChange={handleChange}
+                    className="form-input"
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="form-group">

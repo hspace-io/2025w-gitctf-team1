@@ -55,6 +55,7 @@
   font-size: 15px;
   border: 2px solid #e0e0e0;
   background-color: #ffffff;
+  color: #000000;
   transition: all 0.2s;
   font-family: inherit;
 }
@@ -73,6 +74,136 @@
   background-repeat: no-repeat;
   background-position: right 16px center;
   padding-right: 40px;
+  color: #000000;
+}
+
+.form-select option {
+  color: #000000;
+  background-color: #ffffff;
+}
+
+/* 날짜 입력 필드 스타일 */
+input[type="date"] {
+  cursor: pointer;
+  position: relative;
+  color: #000000;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  cursor: pointer;
+  position: absolute;
+  right: 16px;
+  width: 20px;
+  height: 20px;
+  z-index: 1;
+}
+
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-clear-button {
+  display: none;
+}
+
+input[type="date"]::-webkit-datetime-edit-text,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field {
+  color: #000000;
+  padding: 0;
+}
+
+input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+  color: #000000;
+}
+
+input[type="date"]:focus::-webkit-datetime-edit-text,
+input[type="date"]:focus::-webkit-datetime-edit-month-field,
+input[type="date"]:focus::-webkit-datetime-edit-day-field,
+input[type="date"]:focus::-webkit-datetime-edit-year-field {
+  color: #000000;
+}
+
+/* 일시 입력 그룹 (기존 디자인 유지) */
+.schedule-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.schedule-input-item {
+  flex: 1;
+  min-width: 0;
+}
+
+.schedule-separator {
+  font-size: 14px;
+  color: #666666;
+  font-weight: 500;
+  flex-shrink: 0;
+  padding: 0 5px;
+}
+
+/* datetime-local 입력 필드 스타일 */
+input[type="datetime-local"] {
+  color: #000000;
+  cursor: pointer;
+  width: 100%;
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  cursor: pointer;
+}
+
+input[type="datetime-local"]::-webkit-datetime-edit-text,
+input[type="datetime-local"]::-webkit-datetime-edit-month-field,
+input[type="datetime-local"]::-webkit-datetime-edit-day-field,
+input[type="datetime-local"]::-webkit-datetime-edit-year-field,
+input[type="datetime-local"]::-webkit-datetime-edit-hour-field,
+input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
+  color: #000000;
+  padding: 0;
+}
+
+input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper {
+  color: #000000;
+}
+
+input[type="datetime-local"]:focus::-webkit-datetime-edit-text,
+input[type="datetime-local"]:focus::-webkit-datetime-edit-month-field,
+input[type="datetime-local"]:focus::-webkit-datetime-edit-day-field,
+input[type="datetime-local"]:focus::-webkit-datetime-edit-year-field,
+input[type="datetime-local"]:focus::-webkit-datetime-edit-hour-field,
+input[type="datetime-local"]:focus::-webkit-datetime-edit-minute-field {
+  color: #000000;
+}
+
+/* 시간 입력 필드 스타일 */
+input[type="time"] {
+  color: #000000;
+  cursor: pointer;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  cursor: pointer;
+}
+
+input[type="time"]::-webkit-datetime-edit-text,
+input[type="time"]::-webkit-datetime-edit-hour-field,
+input[type="time"]::-webkit-datetime-edit-minute-field {
+  color: #000000;
+  padding: 0;
+}
+
+input[type="time"]::-webkit-datetime-edit-fields-wrapper {
+  color: #000000;
+}
+
+input[type="time"]:focus::-webkit-datetime-edit-text,
+input[type="time"]:focus::-webkit-datetime-edit-hour-field,
+input[type="time"]:focus::-webkit-datetime-edit-minute-field {
+  color: #000000;
 }
 
 .form-textarea {

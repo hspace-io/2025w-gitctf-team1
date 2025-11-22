@@ -105,6 +105,22 @@ function BoardList() {
     ETC: '기타'
   };
 
+  // 일시에서 시간 정보 제거하고 날짜만 반환
+  const formatScheduleDate = (schedule) => {
+    if (!schedule) return '';
+    
+    const scheduleStr = String(schedule);
+    
+    if (scheduleStr.includes('~')) {
+      const [start, end] = scheduleStr.split('~');
+      const startDate = start.trim().split('T')[0];
+      const endDate = end.trim().split('T')[0];
+      return `${startDate} ~ ${endDate}`;
+    } else {
+      return scheduleStr.split('T')[0];
+    }
+  };
+
   return (
     <div className="board-list">
       <div className="board-container">
@@ -263,7 +279,7 @@ function BoardList() {
                 <div className="post-info-grid">
                   <div className="info-item">
                     <span className="info-label">일시</span>
-                    <span className="info-value">{post.schedule}</span>
+                    <span className="info-value">{formatScheduleDate(post.schedule)}</span>
                   </div>
                   <div className="info-item">
                     <span className="info-label">모집</span>

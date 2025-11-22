@@ -290,15 +290,21 @@
   padding: 12px 15px;
   border: 1px solid #e0e0e0;
   background-color: #ffffff;
+  color: #000000;
   font-size: 14px;
   margin-bottom: 12px;
   font-family: inherit;
   box-sizing: border-box;
 }
 
+.comment-author-input::placeholder {
+  color: #999999;
+}
+
 .comment-author-input:focus {
   outline: none;
   border-color: #000000;
+  color: #000000;
 }
 
 .comment-input {
@@ -307,6 +313,7 @@
   padding: 15px;
   border: 1px solid #e0e0e0;
   background-color: #ffffff;
+  color: #000000;
   font-size: 14px;
   line-height: 1.6;
   resize: vertical;
@@ -315,9 +322,14 @@
   box-sizing: border-box;
 }
 
+.comment-input::placeholder {
+  color: #999999;
+}
+
 .comment-input:focus {
   outline: none;
   border-color: #000000;
+  color: #000000;
 }
 
 .comment-submit-btn {

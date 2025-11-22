@@ -55,16 +55,53 @@ function Intro() {
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toISOString().split('T')[0];
+    if (!dateString) return '';
+    
+    try {
+      // schedule 형식이 "2025-11-24T04:03~2025-12-01T03:02" 같은 경우 처리
+      let dateStr = String(dateString);
+      if (dateStr.includes('~')) {
+        const [start] = dateStr.split('~');
+        dateStr = start.trim();
+      }
+      
+      // T 이후 시간 정보 제거
+      dateStr = dateStr.split('T')[0];
+      
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) {
+        return dateStr; // 유효하지 않은 날짜면 원본 문자열 반환
+      }
+      return date.toISOString().split('T')[0];
+    } catch (error) {
+      console.error('날짜 포맷팅 에러:', error, dateString);
+      return String(dateString).split('T')[0] || '';
+    }
   };
 
   const formatDateDot = (dateString) => {
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}.${month}.${day}`;
+    if (!dateString) return '';
+    
+    try {
+      let dateStr = String(dateString);
+      if (dateStr.includes('~')) {
+        const [start] = dateStr.split('~');
+        dateStr = start.trim();
+      }
+      dateStr = dateStr.split('T')[0];
+      
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) {
+        return dateStr.replace(/-/g, '.');
+      }
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}.${month}.${day}`;
+    } catch (error) {
+      console.error('날짜 포맷팅 에러:', error, dateString);
+      return String(dateString).split('T')[0].replace(/-/g, '.') || '';
+    }
   };
 
   const displayedPosts = recruitingPosts.slice(0, 5);
