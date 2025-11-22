@@ -196,10 +196,9 @@ router.get('/:id', (req, res) => {
     }
 });
 
-// PUT: 인증 미들웨어 적용 및 권한 검증 추가
 router.put('/:id', authenticateToken, (req, res) => {
     const { id } = req.params;
-    const currentUserId = req.userId; // 현재 로그인된 사용자 ID
+    const currentUserId = req.userId; 
 
     const { 
         clubName, category, field, eventDate, 
@@ -225,13 +224,12 @@ router.put('/:id', authenticateToken, (req, res) => {
     }
 
     try {
-        // 1. 기존 게시글의 authorId를 조회
+        
         const existingPost = db.prepare("SELECT id, authorId FROM Event WHERE id = ?").get(id);
         if (!existingPost) {
             return res.status(404).json({ error: "Event with the specified ID not found for update." });
         }
         
-        // 2. 권한 검증: 현재 로그인된 사용자 ID와 글 작성자 ID가 다르면 거부 (IDOR 보완)
         if (existingPost.authorId !== currentUserId) {
              return res.status(403).json({ error: "Authorization denied. You are not the author of this post." });
         }
@@ -275,20 +273,18 @@ router.put('/:id', authenticateToken, (req, res) => {
 });
 
 
-// DELETE: 인증 미들웨어 적용 및 권한 검증 추가
 router.delete('/:id', authenticateToken, (req, res) => {
     const { id } = req.params;
-    const currentUserId = req.userId; // 현재 로그인된 사용자 ID
+    const currentUserId = req.userId; 
 
     try {
-        // 1. 삭제 전 작성자 ID를 확인하기 위해 기존 글을 조회
+        
         const existingPost = db.prepare("SELECT authorId FROM Event WHERE id = ?").get(id);
         
         if (!existingPost) {
             return res.status(404).json({ error: "Event with the specified ID not found for deletion." });
         }
         
-        // 2. 권한 검증: 현재 로그인된 사용자 ID와 글 작성자 ID가 다르면 거부 (IDOR 보완)
         if (existingPost.authorId !== currentUserId) {
              return res.status(403).json({ error: "Authorization denied. You are not the author of this post." });
         }
