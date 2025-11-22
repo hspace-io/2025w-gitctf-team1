@@ -155,27 +155,6 @@ function Club() {
 
   return (
     <div className="club-container">
-      <nav className="top-nav">
-        <div className="nav-left">
-          <h1 className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>HSPACE</h1>
-        </div>
-        <div className="nav-center">
-          <button className="nav-link active">Club</button>
-          <button className="nav-link" onClick={() => navigate('/')}>Recruiting</button>
-        </div>
-        <div className="nav-right">
-          {isLoggedIn ? (
-            <button className="login-button" onClick={logout}>
-              로그아웃
-            </button>
-          ) : (
-            <button className="login-button" onClick={login}>
-              로그인
-            </button>
-          )}
-        </div>
-      </nav>
-
       <main className="club-main">
         <div className="club-header">
           <h2 className="club-title">Club</h2>

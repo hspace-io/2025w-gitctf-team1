@@ -124,51 +124,8 @@ function Intro() {
 
   const displayedPosts = recruitingPosts.slice(0, 5);
 
-  const handleNavClick = (menu) => {
-    if (menu === 'Club') {
-      navigate('/club');
-    } else if (menu === 'Recruiting') {
-      console.log('Recruiting 메뉴 클릭');
-    }
-  };
-
-  const handleLogin = () => {
-    login();
-    console.log('로그인 버튼 클릭');
-  };
-
-  const handleLogout = () => {
-    logout();
-    console.log('로그아웃 버튼 클릭');
-  };
-
   return (
     <div className="intro-container">
-      <nav className="top-nav">
-        <div className="nav-left">
-          <h1 className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>HSPACE</h1>
-        </div>
-        <div className="nav-center">
-          <button className="nav-link" onClick={() => handleNavClick('Club')}>
-            Club
-          </button>
-          <button className="nav-link" onClick={() => navigate('/')}>
-            Recruiting
-          </button>
-        </div>
-        <div className="nav-right">
-          {isLoggedIn ? (
-            <button className="login-button" onClick={handleLogout}>
-              로그아웃
-            </button>
-          ) : (
-            <button className="login-button" onClick={handleLogin}>
-              로그인
-            </button>
-          )}
-        </div>
-      </nav>
-
       <main className="intro-main">
         {isLoggedIn && currentUser && (
           <div className="profile-section">
