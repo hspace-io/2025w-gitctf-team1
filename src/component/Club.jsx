@@ -10,6 +10,7 @@ function Club() {
   const [editingMember, setEditingMember] = useState(null);
   const [editForm, setEditForm] = useState({ name: '', username: '', tags: [] });
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // API 교체: 현재 로그인한 사용자 정보
   // GET /auth/me (또는 로그인 응답에서 사용자 정보 저장)
@@ -32,6 +33,7 @@ function Club() {
     {
       id: 1,
       name: 'Pay1oad',
+      schoolName: '가천대학교',
       description: '보안 및 해킹 기술을 연구하는 동아리입니다.',
       president: '김보안',
       members: [
@@ -45,6 +47,7 @@ function Club() {
     {
       id: 2,
       name: 'I want to sleep',
+      schoolName: '잠 부족',
       description: '잠 자고 싶어요',
       president: '홍웹',
       members: [
@@ -58,6 +61,7 @@ function Club() {
     {
       id: 3,
       name: 'I want to go home',
+      schoolName: '퇴근 요정',
       description: '집에 가고 싶어요',
       president: '송AI',
       members: [
@@ -178,22 +182,55 @@ function Club() {
           <p className="club-subtitle">HSPACE 소속 동아리입니다.</p>
         </div>
 
+        <div className="club-search-container">
+          {/* API 교체: 검색어를 쿼리 파라미터로 전달 */}
+          {/* GET /clubs?schoolName=&search= (검색어 파라미터) */}
+          <input
+            type="text"
+            className="club-search-input"
+            placeholder="동아리 이름으로 검색..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
         <div className="club-list">
-          {clubs.map((club) => (
-            <div
-              key={club.id}
-              className="club-card"
-              onClick={() => handleClubClick(club)}
-            >
-              <div className="club-card-header">
-                <h3 className="club-card-title">{club.name}</h3>
+          {(() => {
+            // API 교체: 검색은 백엔드에서 처리하므로 클라이언트 필터링 제거
+            // 검색어가 있을 때는 API 호출: GET /clubs?search={searchQuery}
+            const filteredClubs = clubs.filter((club) => {
+              if (!searchQuery.trim()) return true;
+              const query = searchQuery.toLowerCase();
+              return (
+                club.name.toLowerCase().includes(query) ||
+                club.description.toLowerCase().includes(query)
+              );
+            });
+
+            if (filteredClubs.length === 0) {
+              return (
+                <div className="club-empty-message">
+                  검색 결과가 없습니다.
+                </div>
+              );
+            }
+
+            return filteredClubs.map((club) => (
+              <div
+                key={club.id}
+                className="club-card"
+                onClick={() => handleClubClick(club)}
+              >
+                <div className="club-card-header">
+                  <h3 className="club-card-title">{club.name}</h3>
+                </div>
+                <p className="club-card-description">{club.description}</p>
+                <div className="club-card-footer">
+                  <span className="club-member-count">부원 {club.members.length}명</span>
+                </div>
               </div>
-              <p className="club-card-description">{club.description}</p>
-              <div className="club-card-footer">
-                <span className="club-member-count">부원 {club.members.length}명</span>
-              </div>
-            </div>
-          ))}
+            ));
+          })()}
         </div>
       </main>
 
@@ -205,6 +242,9 @@ function Club() {
             </button>
             <div className="club-modal-content">
               <h2 className="club-modal-title">{selectedClub.name}</h2>
+              {selectedClub.schoolName && (
+                <div className="club-modal-school">{selectedClub.schoolName}</div>
+              )}
               <p className="club-modal-description">{selectedClub.description}</p>
               
               <div className="club-members-list-container">

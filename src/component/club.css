@@ -144,6 +144,36 @@
   margin: 0;
 }
 
+/* 검색 컨테이너 */
+.club-search-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  padding: 0 2rem;
+}
+
+.club-search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #000000;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  background-color: #ffffff;
+  color: #000000;
+  transition: all 0.2s ease;
+}
+
+.club-search-input:focus {
+  outline: none;
+  border-color: #000000;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.club-search-input::placeholder {
+  color: #999999;
+}
+
 /* 동아리 목록 */
 .club-list {
   display: grid;
@@ -213,6 +243,14 @@
   color: #999999;
 }
 
+.club-empty-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #666666;
+  font-size: 1.1rem;
+}
+
 /* 모달 오버레이 */
 .club-modal-overlay {
   position: fixed;
@@ -272,6 +310,13 @@
   font-weight: 900;
   color: #000000;
   margin-bottom: 0.5rem;
+}
+
+.club-modal-school {
+  font-size: 1rem;
+  color: #666666;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
 }
 
 .club-modal-category {
