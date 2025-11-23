@@ -12,6 +12,8 @@ function PostDetail() {
   const [loading, setLoading] = useState(true);
   const [commentText, setCommentText] = useState('');
   const [commentAuthor, setCommentAuthor] = useState('');
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingCommentText, setEditingCommentText] = useState('');
 
   // 일시에서 시간 정보 제거하고 날짜만 반환
   const formatScheduleDate = (schedule) => {
@@ -45,7 +47,22 @@ function PostDetail() {
         navigate('/recruiting');
         return;
       }
-      setPost(data);
+      
+      // 백엔드 데이터 형식을 프론트엔드 형식으로 변환
+      const formattedPost = {
+        ...data,
+        type: data.category,  // category -> type
+        schedule: data.eventDate,  // eventDate -> schedule
+        recruitCount: data.recruitmentCount,  // recruitmentCount -> recruitCount
+        author: data.authorName || '작성자 없음',  // authorName -> author
+        content: data.description,  // description -> content
+        date: data.CreatedAt ? new Date(data.CreatedAt).toLocaleDateString('ko-KR') : '',
+        views: 0,  // 조회수는 아직 구현되지 않음
+        // difficulty는 그대로 유지 (LOW, MID, HIGH)
+        difficulty: data.difficulty
+      };
+      
+      setPost(formattedPost);
     } catch (error) {
       console.error('게시글 불러오기 실패:', error);
       alert('게시글을 불러올 수 없습니다.');
@@ -58,9 +75,11 @@ function PostDetail() {
   const loadComments = async () => {
     try {
       const data = await api.get(`/comments?postId=${id}`);
-      setComments(data);
+      // API가 {success: true, data: [...]} 형식으로 반환하면 data만 추출
+      setComments(Array.isArray(data) ? data : (data.data || []));
     } catch (error) {
       console.error('댓글 불러오기 실패:', error);
+      setComments([]);
     }
   };
 
@@ -97,11 +116,12 @@ function PostDetail() {
     }
 
     try {
-      const newComment = await api.post(`/comments/${id}`, {
-        postId: parseInt(id),
+      const result = await api.post(`/comments/${id}`, {
         author: commentAuthor,
         content: commentText
       });
+      // API가 {success: true, data: {...}} 형식으로 반환하면 data만 추출
+      const newComment = result.data || result;
       setComments([...comments, newComment]);
       setCommentText('');
       setCommentAuthor('');
@@ -109,6 +129,40 @@ function PostDetail() {
     } catch (error) {
       console.error('댓글 등록 실패:', error);
       alert('댓글 등록에 실패했습니다.');
+    }
+  };
+
+  const handleCommentEdit = (comment) => {
+    setEditingCommentId(comment.id);
+    setEditingCommentText(comment.content);
+  };
+
+  const handleCommentEditCancel = () => {
+    setEditingCommentId(null);
+    setEditingCommentText('');
+  };
+
+  const handleCommentUpdate = async (commentId) => {
+    if (!editingCommentText.trim()) {
+      alert('댓글 내용을 입력해주세요.');
+      return;
+    }
+
+    try {
+      const result = await api.put(`/comments/${commentId}`, {
+        content: editingCommentText
+      });
+      // API가 {success: true, data: {...}} 형식으로 반환하면 data만 추출
+      const updatedComment = result.data || result;
+      setComments(comments.map(c => 
+        c.id === commentId ? updatedComment : c
+      ));
+      setEditingCommentId(null);
+      setEditingCommentText('');
+      alert('댓글이 수정되었습니다.');
+    } catch (error) {
+      console.error('댓글 수정 실패:', error);
+      alert('댓글 수정에 실패했습니다.');
     }
   };
 
@@ -150,7 +204,8 @@ function PostDetail() {
             <div className="post-meta-top">
               <div className="post-badges">
                 <span className="badge-type">
-                  {post.type === 'STUDY' ? '스터디' : post.type === 'CTF' ? 'CTF' : '프로젝트'}
+                  {(post.type === 'STUDY' || post.category === 'STUDY') ? '스터디' : 
+                   (post.type === 'CTF' || post.category === 'CTF') ? 'CTF' : '프로젝트'}
                 </span>
                 <span className="badge-field">
                   {post.field === 'WEB' ? '웹' :
@@ -199,38 +254,13 @@ function PostDetail() {
                 <div>
                   <span className="info-label">난이도</span>
                   <span className="info-value">
-                    {post.difficulty === 'BEGINNER' ? '초급' :
-                     post.difficulty === 'INTERMEDIATE' ? '중급' : '고급'}
+                    {post.difficulty === 'LOW' || post.difficulty === 'BEGINNER' ? '초급' :
+                     post.difficulty === 'MID' || post.difficulty === 'INTERMEDIATE' ? '중급' : '고급'}
                   </span>
                 </div>
               </div>
             </div>
 
-            {post.files && post.files.length > 0 && (
-              <div className="attachments-list">
-                {post.files.map((file, index) => (
-                  <a
-                    key={index}
-                    href={file.data}
-                    download={file.name}
-                    className="attachment-item"
-                  >
-                    <span className="attachment-icon">
-                      {file.type.startsWith('image/') ? '🖼️' :
-                       file.type === 'application/pdf' ? '📄' :
-                       file.type.includes('word') ? '📝' : '📎'}
-                    </span>
-                    <span className="attachment-name">{file.name}</span>
-                    <span className="attachment-size">
-                      {file.size < 1024 ? file.size + ' B' :
-                       file.size < 1024 * 1024 ? (file.size / 1024).toFixed(1) + ' KB' :
-                       (file.size / (1024 * 1024)).toFixed(1) + ' MB'}
-                    </span>
-                    <span className="attachment-download">다운로드</span>
-                  </a>
-                ))}
-              </div>
-            )}
           </div>
 
           <div className="post-body">
@@ -272,10 +302,48 @@ function PostDetail() {
                   <span className="comment-author">{comment.author}</span>
                   <span className="comment-date">{comment.date}</span>
                 </div>
-                <p className="comment-content">{comment.content}</p>
-                <div className="comment-actions">
-                  <button className="comment-action-btn" onClick={() => handleCommentDelete(comment.id)}>삭제</button>
-                </div>
+                {editingCommentId === comment.id ? (
+                  <div className="comment-edit-area">
+                    <textarea
+                      className="comment-edit-input"
+                      value={editingCommentText}
+                      onChange={(e) => setEditingCommentText(e.target.value)}
+                      rows={3}
+                    />
+                    <div className="comment-edit-actions">
+                      <button 
+                        className="comment-action-btn" 
+                        onClick={() => handleCommentUpdate(comment.id)}
+                      >
+                        저장
+                      </button>
+                      <button 
+                        className="comment-action-btn cancel" 
+                        onClick={handleCommentEditCancel}
+                      >
+                        취소
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <p className="comment-content">{comment.content}</p>
+                    <div className="comment-actions">
+                      <button 
+                        className="comment-action-btn" 
+                        onClick={() => handleCommentEdit(comment)}
+                      >
+                        수정
+                      </button>
+                      <button 
+                        className="comment-action-btn delete" 
+                        onClick={() => handleCommentDelete(comment.id)}
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>

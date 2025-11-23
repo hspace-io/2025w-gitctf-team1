@@ -405,6 +405,40 @@
   color: #000000;
 }
 
+.comment-action-btn.delete:hover {
+  color: #ff4444;
+}
+
+.comment-action-btn.cancel {
+  color: #666666;
+}
+
+.comment-edit-area {
+  margin-top: 10px;
+}
+
+.comment-edit-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  margin-bottom: 10px;
+}
+
+.comment-edit-input:focus {
+  outline: none;
+  border-color: #333333;
+}
+
+.comment-edit-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
 @media (max-width: 768px) {
   .post-content {
     padding: 30px 20px;

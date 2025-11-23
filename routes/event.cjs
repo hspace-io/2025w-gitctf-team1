@@ -128,9 +128,30 @@ router.post('/', (req, res) => {
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `);
 
+        // clubName이 유효한지 확인 (Club 테이블에 존재하는지)
+        let validClubName = null;
+        if (clubName) {
+            const club = db.prepare('SELECT clubName FROM Club WHERE clubName = ?').get(clubName);
+            if (club) {
+                validClubName = clubName;
+            }
+        }
+        
+        // authorId가 유효한지 확인 (users 테이블에 존재하는지)
+        let validAuthorId = null;
+        if (authorId) {
+            const authorIdInt = parseInt(authorId);
+            if (!isNaN(authorIdInt)) {
+                const user = db.prepare('SELECT id FROM users WHERE id = ?').get(authorIdInt);
+                if (user) {
+                    validAuthorId = authorIdInt;
+                }
+            }
+        }
+
         const info = insertQuery.run(
             eventId,
-            clubName || null,
+            validClubName,
             category,
             field || null,
             eventDate || null,
@@ -138,7 +159,7 @@ router.post('/', (req, res) => {
             difficulty,
             title,
             description || null,
-            authorId || null
+            validAuthorId
         );
 
         // 생성된 이벤트 조회
@@ -203,6 +224,21 @@ router.put('/:id', (req, res) => {
             }
         }
 
+        // clubName이 유효한지 확인 (Club 테이블에 존재하는지)
+        let validClubName = existingEvent.clubName;  // 기존 값 유지
+        if (clubName !== undefined && clubName !== null) {
+            if (clubName) {
+                const club = db.prepare('SELECT clubName FROM Club WHERE clubName = ?').get(clubName);
+                if (club) {
+                    validClubName = clubName;
+                } else {
+                    validClubName = null;  // 유효하지 않으면 null
+                }
+            } else {
+                validClubName = null;
+            }
+        }
+
         const updateQuery = db.prepare(`
             UPDATE Event 
             SET 
@@ -219,7 +255,7 @@ router.put('/:id', (req, res) => {
         `);
 
         updateQuery.run(
-            clubName || null,
+            validClubName,
             category || null,
             field || null,
             eventDate || null,

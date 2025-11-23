@@ -10,6 +10,7 @@ const db = require('./db.cjs');
 const authRouter = require('./routes/auth.cjs'); 
 const eventRouter = require('./routes/event.cjs'); 
 const clubRouter = require('./routes/club.cjs');
+const commentRouter = require('./routes/comment.cjs');
 
 const app = express();
 const PORT = 4000;
@@ -79,6 +80,22 @@ if (db) {
         `);
         console.log("Club & Event tables initialized");
 
+        // 4. Comment 테이블 생성
+        db.exec(`
+            CREATE TABLE IF NOT EXISTS Comment (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                postId TEXT NOT NULL,
+                author TEXT NOT NULL,
+                content TEXT NOT NULL,
+                authorId INTEGER,
+                createdAt TEXT DEFAULT (datetime('now')),
+                updatedAt TEXT DEFAULT (datetime('now')),
+                FOREIGN KEY(postId) REFERENCES Event(id) ON DELETE CASCADE,
+                FOREIGN KEY(authorId) REFERENCES users(id)
+            )
+        `);
+        console.log("Comment table initialized");
+
     } catch (err) {
         console.error("FATAL ERROR: Table initialization failed:", err);
     }
@@ -90,6 +107,7 @@ if (db) {
 app.use('/auth', authRouter);
 app.use('/events', eventRouter);
 app.use('/clubs', clubRouter);
+app.use('/comments', commentRouter);
 
 // 개발 환경에서만 보이는 API 테스트 페이지
 if (process.env.NODE_ENV !== 'production') {

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './PostWrite.css';
 import api from '../services/api';
 
 function PostWrite() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { user } = useAuth();
   const isEditMode = !!id;
 
   const [formData, setFormData] = useState({
@@ -42,34 +44,41 @@ function PostWrite() {
         let startDate = '';
         let endDate = '';
         
-        if (post.schedule) {
-          if (post.schedule.includes('~')) {
-            const [start, end] = post.schedule.split('~');
+        // 백엔드 데이터 형식 변환
+        const schedule = post.eventDate || post.schedule;
+        
+        if (schedule) {
+          if (schedule.includes('~')) {
+            const [start, end] = schedule.split('~');
             startDate = start.trim().split('T')[0];
             endDate = end.trim().split('T')[0];
           } else {
-            startDate = post.schedule.split('T')[0];
-            endDate = post.schedule.split('T')[0];
+            startDate = schedule.split('T')[0];
+            endDate = schedule.split('T')[0];
           }
         }
         
+        // difficulty 변환 (LOW -> BEGINNER, MID -> INTERMEDIATE, HIGH -> ADVANCED)
+        const difficultyMap = {
+          'LOW': 'BEGINNER',
+          'MID': 'INTERMEDIATE',
+          'HIGH': 'ADVANCED'
+        };
+        
         setFormData({
-          type: post.type,
+          type: post.category || post.type,  // category -> type
           field: post.field,
           title: post.title,
-          description: post.description,
+          description: post.description || '',
           startDate: startDate,
           endDate: endDate,
-          schedule: post.schedule,
-          recruitCount: post.recruitCount,
-          difficulty: post.difficulty,
-          author: post.author,
+          schedule: schedule,
+          recruitCount: post.recruitmentCount || post.recruitCount,  // recruitmentCount -> recruitCount
+          difficulty: difficultyMap[post.difficulty] || post.difficulty,  // difficulty 변환
+          author: post.authorName || post.author || '',
           clubName: post.clubName || '',
-          content: post.content
+          content: post.description || ''  // description -> content
         });
-        if (post.files) {
-          setExistingFiles(post.files);
-        }
       }
     } catch (error) {
       console.error('게시글 불러오기 실패:', error);
@@ -172,19 +181,24 @@ function PostWrite() {
         ? formData.startDate
         : `${formData.startDate}~${formData.endDate}`;
 
-      const allFiles = [...existingFiles, ...files];
+      // difficulty 변환 (BEGINNER -> LOW, INTERMEDIATE -> MID, ADVANCED -> HIGH)
+      const difficultyMap = {
+        'BEGINNER': 'LOW',
+        'INTERMEDIATE': 'MID',
+        'ADVANCED': 'HIGH'
+      };
+      
+      // 백엔드 API 형식에 맞게 데이터 변환
       const postData = {
-        type: formData.type,
+        category: formData.type,  // type -> category
         field: formData.field,
         title: formData.title,
-        description: formData.description,
-        schedule: schedule,
-        recruitCount: parseInt(formData.recruitCount),
-        difficulty: formData.difficulty,
-        author: formData.author,
-        clubName: formData.clubName,
-        content: formData.content,
-        files: allFiles
+        description: formData.content || formData.description,  // content를 description으로
+        eventDate: schedule,  // schedule -> eventDate
+        recruitmentCount: parseInt(formData.recruitCount),  // recruitCount -> recruitmentCount
+        difficulty: difficultyMap[formData.difficulty] || formData.difficulty,  // difficulty 변환
+        clubName: formData.clubName || null,
+        authorId: user?.id || null  // 로그인한 사용자의 ID
       };
 
       if (isEditMode) {
@@ -384,59 +398,6 @@ function PostWrite() {
             />
           </div>
 
-          <div className="form-group">
-            <label>첨부파일</label>
-            <div className="file-upload-area">
-              <input
-                type="file"
-                id="file-upload"
-                multiple
-                onChange={handleFileChange}
-                className="file-input"
-                accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.txt"
-              />
-              <label htmlFor="file-upload" className="file-upload-label">
-                <span className="upload-icon">+</span>
-                <span>파일 선택</span>
-                <span className="upload-hint">이미지, PDF, 문서 파일 (최대 5MB)</span>
-              </label>
-            </div>
-
-            {(existingFiles.length > 0 || files.length > 0) && (
-              <div className="file-list">
-                {existingFiles.map((file, index) => (
-                  <div key={`existing-${index}`} className="file-item">
-                    <div className="file-info">
-                      <span className="file-name">{file.name}</span>
-                      <span className="file-size">{formatFileSize(file.size)}</span>
-                    </div>
-                    <button
-                      type="button"
-                      className="file-remove-btn"
-                      onClick={() => handleExistingFileRemove(index)}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-                {files.map((file, index) => (
-                  <div key={`new-${index}`} className="file-item">
-                    <div className="file-info">
-                      <span className="file-name">{file.name}</span>
-                      <span className="file-size">{formatFileSize(file.size)}</span>
-                    </div>
-                    <button
-                      type="button"
-                      className="file-remove-btn"
-                      onClick={() => handleFileRemove(index)}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
 
           <div className="form-actions">
             <button

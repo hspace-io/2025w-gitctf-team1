@@ -28,7 +28,21 @@ function BoardList() {
       setLoading(true);
       // API 명세서: GET /events - 모집글 목록 조회
       const data = await api.get('/events');
-      setPosts(data);
+      
+      // 백엔드 데이터 형식을 프론트엔드 형식으로 변환
+      const formattedPosts = data.map(post => ({
+        ...post,
+        type: post.category || post.type,  // category -> type
+        schedule: post.eventDate || post.schedule,  // eventDate -> schedule
+        recruitCount: post.recruitmentCount || post.recruitCount,  // recruitmentCount -> recruitCount
+        author: post.authorName || post.author || '작성자 없음',  // authorName -> author
+        date: post.CreatedAt ? new Date(post.CreatedAt).toLocaleDateString('ko-KR') : '',
+        views: 0,  // 조회수는 아직 구현되지 않음
+        // difficulty는 그대로 유지 (LOW, MID, HIGH)
+        difficulty: post.difficulty
+      }));
+      
+      setPosts(formattedPosts);
     } catch (error) {
       console.error('게시글 불러오기 실패:', error);
       alert('게시글을 불러올 수 없습니다.');
@@ -48,7 +62,10 @@ function BoardList() {
     let filtered = posts;
 
     if (filters.type !== 'ALL') {
-      filtered = filtered.filter(post => post.type === filters.type);
+      filtered = filtered.filter(post => {
+        const postType = post.type || post.category;
+        return postType === filters.type;
+      });
     }
 
     if (filters.field !== 'ALL') {
@@ -56,7 +73,17 @@ function BoardList() {
     }
 
     if (filters.difficulty !== 'ALL') {
-      filtered = filtered.filter(post => post.difficulty === filters.difficulty);
+      // difficulty 필터 변환 (BEGINNER -> LOW, INTERMEDIATE -> MID, ADVANCED -> HIGH)
+      const difficultyMap = {
+        'BEGINNER': 'LOW',
+        'INTERMEDIATE': 'MID',
+        'ADVANCED': 'HIGH'
+      };
+      const backendDifficulty = difficultyMap[filters.difficulty] || filters.difficulty;
+      filtered = filtered.filter(post => {
+        const postDifficulty = post.difficulty;
+        return postDifficulty === backendDifficulty || postDifficulty === filters.difficulty;
+      });
     }
 
     if (filters.dateFrom) {
@@ -85,7 +112,10 @@ function BoardList() {
   const difficultyLabels = {
     BEGINNER: '초급',
     INTERMEDIATE: '중급',
-    ADVANCED: '고급'
+    ADVANCED: '고급',
+    LOW: '초급',
+    MID: '중급',
+    HIGH: '고급'
   };
 
   const typeLabels = {
@@ -267,36 +297,46 @@ function BoardList() {
               <Link to={`/recruiting/post/${post.id}`} key={post.id} className="post-card">
                 <div className="post-card-header">
                   <div className="post-badges">
-                    <span className="post-type">{typeLabels[post.type]}</span>
-                    <span className="post-field">{fieldLabels[post.field]}</span>
+                    <span className="post-type">
+                      {typeLabels[post.type] || typeLabels[post.category] || '기타'}
+                    </span>
+                    <span className="post-field">{fieldLabels[post.field] || '기타'}</span>
                   </div>
-                  <span className="post-views">👁 {post.views}</span>
+                  <span className="post-views">👁 {post.views || 0}</span>
                 </div>
 
                 <h2 className="post-title">{post.title}</h2>
-                <p className="post-description">{post.description}</p>
+                <p className="post-description">{post.description || ''}</p>
 
                 <div className="post-info-grid">
                   <div className="info-item">
                     <span className="info-label">일시</span>
-                    <span className="info-value">{formatScheduleDate(post.schedule)}</span>
+                    <span className="info-value">
+                      {formatScheduleDate(post.schedule || post.eventDate)}
+                    </span>
                   </div>
                   <div className="info-item">
                     <span className="info-label">모집</span>
-                    <span className="info-value">{post.recruitCount}명</span>
+                    <span className="info-value">
+                      {post.recruitCount || post.recruitmentCount || 0}명
+                    </span>
                   </div>
                   <div className="info-item">
                     <span className="info-label">난이도</span>
-                    <span className="info-value">{difficultyLabels[post.difficulty]}</span>
+                    <span className="info-value">
+                      {difficultyLabels[post.difficulty] || '미정'}
+                    </span>
                   </div>
                 </div>
 
                 <div className="post-meta">
                   <div className="post-author-info">
-                    <span className="post-author">{post.author}</span>
+                    <span className="post-author">{post.author || post.authorName || '작성자 없음'}</span>
                     {post.clubName && <span className="post-club">{post.clubName}</span>}
                   </div>
-                  <span className="post-date">{post.date}</span>
+                  <span className="post-date">
+                    {post.date || (post.CreatedAt ? new Date(post.CreatedAt).toLocaleDateString('ko-KR') : '')}
+                  </span>
                 </div>
               </Link>
             ))}
