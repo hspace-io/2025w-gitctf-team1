@@ -23,8 +23,15 @@ function Club() {
   };
 
   const isAuthorized = (club) => {
-    if (!isLoggedIn) return false;
-    const member = club.members.find(m => m.username === currentUser.username);
+    if (!isLoggedIn || !currentUser || !currentUser.username) return false;
+    
+    // username 매칭 (앞에 @가 있거나 없거나 모두 처리)
+    const userUsername = currentUser.username.startsWith('@') ? currentUser.username : `@${currentUser.username}`;
+    const member = club.members.find(m => {
+      const memberUsername = m.username.startsWith('@') ? m.username : `@${m.username}`;
+      return memberUsername === userUsername || m.username === currentUser.username || m.name === currentUser.name;
+    });
+    
     if (!member) return false;
     return member.tags.includes('회장') || member.tags.includes('운영진') || currentUser.isAdmin;
   };

@@ -366,42 +366,76 @@ class API {
   _signUpLocalStorage(userData) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
-        const nextId = parseInt(localStorage.getItem(STORAGE_KEYS.NEXT_USER_ID) || '1');
+        try {
+          const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
+          const nextId = parseInt(localStorage.getItem(STORAGE_KEYS.NEXT_USER_ID) || '1');
 
-        // 중복 아이디 체크
-        const existingUser = users.find(u => u.username === userData.username);
-        if (existingUser) {
-          reject(new Error('이미 사용 중인 아이디입니다.'));
-          return;
-        }
-
-        const newUser = {
-          id: nextId,
-          schoolName: userData.schoolName,
-          clubName: userData.clubName,
-          name: userData.name,
-          nickname: userData.nickname,
-          username: userData.username,
-          password: userData.password,
-          createdAt: new Date().toISOString(),
-        };
-
-        users.push(newUser);
-        localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
-        localStorage.setItem(STORAGE_KEYS.NEXT_USER_ID, String(nextId + 1));
-
-        resolve({
-          success: true,
-          user: {
-            id: newUser.id,
-            username: newUser.username,
-            name: newUser.name,
-            nickname: newUser.nickname,
-            schoolName: newUser.schoolName,
-            clubName: newUser.clubName,
+          // 중복 아이디 체크
+          const existingUser = users.find(u => u.username === userData.username);
+          if (existingUser) {
+            reject(new Error('이미 사용 중인 아이디입니다.'));
+            return;
           }
-        });
+
+          const newUser = {
+            id: nextId,
+            schoolName: userData.schoolName,
+            clubName: userData.clubName,
+            name: userData.name,
+            nickname: userData.nickname,
+            username: userData.username,
+            password: userData.password,
+            createdAt: new Date().toISOString(),
+          };
+
+          users.push(newUser);
+          localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+          localStorage.setItem(STORAGE_KEYS.NEXT_USER_ID, String(nextId + 1));
+
+          // 동아리 members에 자동 추가
+          const clubs = JSON.parse(localStorage.getItem(STORAGE_KEYS.CLUBS) || '[]');
+          const club = clubs.find(c => c.name === userData.clubName && c.schoolName === userData.schoolName);
+          
+          if (club) {
+            // 동아리에 이미 해당 사용자가 있는지 확인
+            const usernameWithAt = userData.username.startsWith('@') ? userData.username : `@${userData.username}`;
+            const existingMember = club.members.find(m => 
+              m.username === userData.username || 
+              m.username === usernameWithAt ||
+              m.name === userData.name
+            );
+            
+            if (!existingMember) {
+              // 동아리 members가 비어있으면 회장으로, 아니면 부원으로 추가
+              const isFirstMember = club.members.length === 0;
+              const newMember = {
+                name: userData.name,
+                username: usernameWithAt,
+                tags: isFirstMember ? ['회장'] : ['부원']
+              };
+              
+              club.members.push(newMember);
+              if (isFirstMember) {
+                club.president = userData.name;
+              }
+              localStorage.setItem(STORAGE_KEYS.CLUBS, JSON.stringify(clubs));
+            }
+          }
+
+          resolve({
+            success: true,
+            user: {
+              id: newUser.id,
+              username: newUser.username,
+              name: newUser.name,
+              nickname: newUser.nickname,
+              schoolName: newUser.schoolName,
+              clubName: newUser.clubName,
+            }
+          });
+        } catch (error) {
+          reject(error);
+        }
       }, 300);
     });
   }
