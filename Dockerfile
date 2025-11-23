@@ -66,6 +66,7 @@ COPY flag /var/ctf/
 
 # Build and run your service here
 # 포트 노출 및 서버 실행
-EXPOSE 4000
+EXPOSE 5000
 ENV NODE_ENV=production
+ENV PORT=5000
 CMD ["node", "app.cjs"]

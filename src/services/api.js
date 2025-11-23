@@ -6,8 +6,9 @@ const API_CONFIG = {
   USE_LOCAL_STORAGE: false,
   
   // API 베이스 URL
-  // 개발: vite proxy를 통해 /auth, /events, /clubs 요청이 localhost:4000으로 전달됨
-  // 프로덕션: 같은 서버(4000)에서 API와 프론트엔드 모두 제공
+  // 개발: vite proxy를 통해 /auth, /events, /clubs 요청이 백엔드로 전달됨
+  // 프로덕션: 같은 서버에서 API와 프론트엔드 모두 제공
+  // 포트는 환경 변수(PORT)로 동적 설정 가능 (기본: 5000)
   BASE_URL: '',  // 상대 경로 사용 (proxy가 처리)
 };
 

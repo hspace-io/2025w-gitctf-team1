@@ -13,7 +13,7 @@
     "start": "concurrently \"npm run server\" \"npm run dev\"",
     "prod": "npm run build && NODE_ENV=production node app.cjs",
     "docker:build": "docker build -t hacker-tone .",
-    "docker:run": "docker run -p 4000:4000 hacker-tone",
+    "docker:run": "docker run -p 5000:5000 hacker-tone",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

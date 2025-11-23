@@ -9,15 +9,15 @@ export default defineConfig({
     open: true,
     proxy: {
       '/auth': {
-        target: 'http://localhost:4000',
+        target: process.env.API_URL || 'http://localhost:5000',
         changeOrigin: true
       },
       '/events': {
-        target: 'http://localhost:4000',
+        target: process.env.API_URL || 'http://localhost:5000',
         changeOrigin: true
       },
       '/clubs': {
-        target: 'http://localhost:4000',
+        target: process.env.API_URL || 'http://localhost:5000',
         changeOrigin: true
       }
     }

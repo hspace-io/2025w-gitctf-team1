@@ -15,7 +15,7 @@ const clubRouter = require('./routes/club.cjs');
 const commentRouter = require('./routes/comment.cjs');
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
