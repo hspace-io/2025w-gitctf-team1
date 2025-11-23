@@ -1,6 +1,7 @@
 const db = require("../db.cjs");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
 // 아직은 하드코딩 했지만 실제 배포할 때는 .env로 할게요~
 const JWT_SECRET = "hspace_ctf_secret_key_secure_version";
@@ -9,7 +10,7 @@ const authController = {
     // 회원가입
     signup: async (req, res) => {
         try {
-            const { username, password, name, schoolName, clubName } = req.body;
+            const { username, password, name, alias, schoolName, clubName } = req.body;
 
             // 중복 아이디 확인 
             const existingUser = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
@@ -21,22 +22,33 @@ const authController = {
                 });
             }
 
+            // 아이디, 이름, 닉네임이 같아야 함
+            if (username !== name || username !== (alias || name)) {
+                return res.status(400).json({ 
+                    success: false,
+                    message: "아이디, 이름, 닉네임이 같아야 합니다." 
+                });
+            }
+
             // 비밀번호 암호화
             const hashedPassword = await bcrypt.hash(password, 10);
 
+            // UUID 생성
+            const userId = crypto.randomUUID();
+
             // 유저 생성, isAdmin은 0(false)으로 기본 설정
             const insertQuery = db.prepare(`
-                INSERT INTO users (username, password, name, schoolName, clubName, isAdmin)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO users (id, username, password, name, alias, schoolName, clubName, isAdmin, isClubStaff)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             `);
 
-            const info = insertQuery.run(username, hashedPassword, name, schoolName, clubName, 0);
+            const userAlias = alias || name; // alias가 없으면 name 사용
+            insertQuery.run(userId, username, hashedPassword, name, userAlias, schoolName, clubName, 0, 0);
 
-            // info.lastInsertRowid 로 생성된 ID 확인 가능
             res.status(201).json({ 
                 success: true,
                 message: "회원가입 성공", 
-                userId: info.lastInsertRowid 
+                userId: userId 
             });
 
         } catch (error) {
@@ -91,9 +103,11 @@ const authController = {
                     id: user.id,
                     username: user.username,
                     name: user.name,
+                    alias: user.alias || user.name,
                     schoolName: user.schoolName,
                     clubName: user.clubName,
-                    isAdmin: !!user.isAdmin
+                    isAdmin: !!user.isAdmin,
+                    isClubStaff: !!user.isClubStaff
                 }
             });
 

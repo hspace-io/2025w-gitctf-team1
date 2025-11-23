@@ -43,7 +43,7 @@ function Club() {
         setIsLoading(true);
         let endpoint = '/clubs';
         if (searchQuery.trim()) {
-          endpoint = `/clubs?search=${encodeURIComponent(searchQuery)}`;
+          endpoint = `/clubs?search=${encodeURIComponent(searchQuery.trim())}`;
         }
         const data = await api.get(endpoint);
         setClubs(data);
@@ -55,7 +55,12 @@ function Club() {
       }
     };
 
-    fetchClubs();
+    // 디바운싱: 검색어 입력 후 300ms 대기
+    const timeoutId = setTimeout(() => {
+      fetchClubs();
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
   }, [searchQuery]);
 
   const handleClubClick = async (club) => {
@@ -157,7 +162,7 @@ function Club() {
           <input
             type="text"
             className="club-search-input"
-            placeholder="동아리 이름으로 검색..."
+            placeholder="동아리 이름, 설명, 학교명으로 검색..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -259,7 +264,9 @@ function Club() {
                           </div>
                           <div className="member-info">
                             <div className="member-name">{member.name}</div>
-                            <div className="member-username">{member.username}</div>
+                            {member.alias && (
+                              <div className="member-alias">({member.alias})</div>
+                            )}
                           </div>
                         </div>
                         <div className="member-tags">

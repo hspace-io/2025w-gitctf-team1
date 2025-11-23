@@ -398,6 +398,12 @@
   color: #666666;
 }
 
+.member-alias {
+  font-size: 0.85rem;
+  color: #000000;
+  font-weight: 500;
+}
+
 .member-tags {
   display: flex;
   gap: 0.5rem;

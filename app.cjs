@@ -3,6 +3,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const path = require('path');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 // DB 연결
 const db = require('./db.cjs'); 
@@ -28,28 +29,31 @@ if (process.env.NODE_ENV === 'production') {
 // DB 초기화 및 테이블 생성
 if (db) {
     try {
-        // 1. Users 테이블 생성 (사용자님 코드 + 팀원 코드 통합)
+        // 기존 users 테이블이 INTEGER id를 사용하는 경우를 위해 DROP 후 재생성
+        try {
+            db.prepare('DROP TABLE IF EXISTS users').run();
+        } catch (err) {
+            // 테이블이 없으면 무시
+        }
+        
+        // 1. Users 테이블 생성 (새 스키마에 맞게 수정)
         db.prepare(`
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+            CREATE TABLE users (
+                id TEXT PRIMARY KEY,
                 username TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL,
                 name TEXT NOT NULL,
+                alias TEXT,
                 schoolName TEXT,
                 clubName TEXT,
                 isAdmin INTEGER DEFAULT 0,
+                isClubStaff INTEGER DEFAULT 0,
                 tags TEXT,
-                createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+                createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `).run();
         console.log("Users table initialized");
-        
-        // tags 컬럼이 없으면 추가 (기존 DB 호환성)
-        try {
-            db.prepare('ALTER TABLE users ADD COLUMN tags TEXT').run();
-        } catch (err) {
-            // 컬럼이 이미 존재하면 무시
-        }
 
         // 2. Club 테이블 생성 (팀원 코드)
         db.exec(`
@@ -120,28 +124,38 @@ if (db) {
                     // 사용자가 이미 존재하는지 확인
                     const existingUser = db.prepare('SELECT id FROM users WHERE username = ?').get(member.username);
                     const tagsJson = JSON.stringify(member.tags || ['부원']);
+                    const isClubStaff = member.tags && (member.tags.includes('회장') || member.tags.includes('운영진')) ? 1 : 0;
+                    // 아이디, 이름, 닉네임이 같아야 함
+                    const alias = member.alias || member.username || member.name;
+                    
                     if (!existingUser) {
+                        const userId = crypto.randomUUID();
                         db.prepare(`
-                            INSERT INTO users (username, password, name, schoolName, clubName, isAdmin, tags)
-                            VALUES (?, ?, ?, ?, ?, ?, ?)
+                            INSERT INTO users (id, username, password, name, alias, schoolName, clubName, isAdmin, isClubStaff, tags)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         `).run(
+                            userId,
                             member.username,
                             defaultPassword,
                             member.name,
+                            alias,
                             club.schoolName,
                             club.name,
                             0,
+                            isClubStaff,
                             tagsJson
                         );
-                        console.log(`  - Member "${member.name}" (${member.username}) added with tags: ${tagsJson}`);
+                        console.log(`  - Member "${member.name}" (${member.username}, alias: ${alias}) added with tags: ${tagsJson}`);
                     } else {
-                        // 기존 사용자의 clubName과 tags 업데이트
-                        db.prepare('UPDATE users SET clubName = ?, tags = ? WHERE username = ?').run(
+                        // 기존 사용자의 clubName, tags, isClubStaff, alias 업데이트
+                        db.prepare('UPDATE users SET clubName = ?, tags = ?, isClubStaff = ?, alias = ? WHERE username = ?').run(
                             club.name,
                             tagsJson,
+                            isClubStaff,
+                            alias,
                             member.username
                         );
-                        console.log(`  - Member "${member.name}" (${member.username}) updated with tags: ${tagsJson}`);
+                        console.log(`  - Member "${member.name}" (${member.username}, alias: ${alias}) updated with tags: ${tagsJson}`);
                     }
                 }
             }

@@ -4,15 +4,31 @@ const db = require('../db.cjs');
 
 router.get('/', (req, res) => {
     try {
-        const clubs = db.prepare(`
-            SELECT id, schoolName, clubName, description, activities
-            FROM Club
-        `).all();
+        const searchQuery = req.query.search;
+        
+        let clubs;
+        if (searchQuery && searchQuery.trim()) {
+            // 검색어가 있으면 동아리 이름, 설명, 학교명으로 검색
+            const searchTerm = `%${searchQuery.trim()}%`;
+            clubs = db.prepare(`
+                SELECT id, schoolName, clubName, description, activities
+                FROM Club
+                WHERE clubName LIKE ? 
+                   OR description LIKE ? 
+                   OR schoolName LIKE ?
+            `).all(searchTerm, searchTerm, searchTerm);
+        } else {
+            // 검색어가 없으면 전체 조회
+            clubs = db.prepare(`
+                SELECT id, schoolName, clubName, description, activities
+                FROM Club
+            `).all();
+        }
 
         // 각 동아리에 멤버 정보 추가
         const clubsWithMembers = clubs.map(club => {
             const members = db.prepare(`
-                SELECT id, name, username, tags
+                SELECT id, name, alias, username, tags
                 FROM users
                 WHERE clubName = ?
                 ORDER BY 
@@ -38,16 +54,23 @@ router.get('/', (req, res) => {
                 }
                 return {
                     name: member.name,
+                    alias: member.alias || member.name,
                     username: member.username.startsWith('@') ? member.username : `@${member.username}`,
                     tags: tags
                 };
             });
 
+            // 회장 찾기 (tags에 '회장'이 포함된 첫 번째 멤버)
+            const presidentMember = membersWithTags.find(m => m.tags.includes('회장'));
+            const presidentInfo = presidentMember 
+                ? `${presidentMember.name} (${presidentMember.alias})` 
+                : null;
+
             return {
                 ...club,
                 name: club.clubName,  // 프론트엔드 호환성을 위해 name 필드 추가
                 members: membersWithTags,
-                president: membersWithTags.length > 0 ? membersWithTags[0].name : null
+                president: presidentInfo
             };
         });
 
@@ -79,7 +102,7 @@ router.get('/:id', (req, res) => {
 
         // 멤버 정보 조회
         const members = db.prepare(`
-            SELECT id, name, username, tags
+            SELECT id, name, alias, username, tags
             FROM users
             WHERE clubName = ?
             ORDER BY 
@@ -105,10 +128,17 @@ router.get('/:id', (req, res) => {
             }
             return {
                 name: member.name,
+                alias: member.alias || member.name,
                 username: member.username.startsWith('@') ? member.username : `@${member.username}`,
                 tags: tags
             };
         });
+
+        // 회장 찾기 (tags에 '회장'이 포함된 첫 번째 멤버)
+        const presidentMember = membersWithTags.find(m => m.tags.includes('회장'));
+        const presidentInfo = presidentMember 
+            ? `${presidentMember.name} (${presidentMember.alias})` 
+            : null;
 
         // 이벤트 정보 조회
         const events = db.prepare(`
@@ -123,7 +153,7 @@ router.get('/:id', (req, res) => {
                 ...club,
                 name: club.clubName,  // 프론트엔드 호환성을 위해 name 필드 추가
                 members: membersWithTags,
-                president: membersWithTags.length > 0 ? membersWithTags[0].name : null,
+                president: presidentInfo,
                 events 
             }
         });
