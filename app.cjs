@@ -99,8 +99,9 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // 프로덕션: 모든 요청을 React 앱으로 전달 (SPA 라우팅)
+// API 라우트는 이미 위에서 등록되었으므로, 여기로 오는 요청은 모두 index.html로
 if (process.env.NODE_ENV === 'production') {
-    app.get('*', (req, res) => {
+    app.use((req, res) => {
         res.sendFile(path.join(__dirname, 'dist', 'index.html'));
     });
 }

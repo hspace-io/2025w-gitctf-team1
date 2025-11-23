@@ -46,11 +46,18 @@ WORKDIR /app
 # 의존성 파일 복사 및 설치
 COPY package*.json ./
 RUN npm install
+# 32비트 Linux용 Rollup WASM 빌드 설치
+RUN npm install @rollup/wasm-node --save-dev
 
 # 소스 코드 복사
 COPY . .
 
 # 프론트엔드 빌드 (React 앱을 정적 파일로 빌드)
+# 32비트 Linux에서 Rollup WASM 빌드 사용
+# rollup을 wasm-node로 교체
+RUN npm uninstall rollup && npm install @rollup/wasm-node --save-dev && \
+    cd node_modules && rm -rf rollup && ln -s @rollup/wasm-node rollup
+ENV ROLLUP_USE_WASM=1
 RUN npm run build
 
 # Don't Touch
@@ -60,4 +67,5 @@ COPY flag /var/ctf/
 # Build and run your service here
 # 포트 노출 및 서버 실행
 EXPOSE 4000
+ENV NODE_ENV=production
 CMD ["node", "app.cjs"]
