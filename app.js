@@ -1,9 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const db = require('./db');
-const authRouter = require('./routes/auth');
-const clubRoutes = require('./routes/club');
+
+const db = require('./db.js');
+const authRouter = require('./routes/auth'); 
+const eventRouter = require('./routes/event.js'); 
+const clubRouter = require('./routes/club.js');
 
 const app = express();
 const PORT = 4000;
@@ -25,19 +27,61 @@ try {
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `).run();
-    console.log("Users table initialized");
 } catch (err) {
-    console.error("Table initialization failed:", err);
+    console.error("FATAL ERROR: Users table initialization failed:", err);
 }
 
+if (db) {
+    try {
+        db.exec(`
+            CREATE TABLE IF NOT EXISTS Club (
+                clubName TEXT PRIMARY KEY,
+                description TEXT,
+                schoolName TEXT NOT NULL 
+            );
+        `);
+        
+        const existingClub = db.prepare('SELECT clubName FROM Club WHERE clubName = ?').get('SecurityClub');
+        
+        if (!existingClub) {
+            db.prepare('INSERT INTO Club (clubName, description, schoolName) VALUES (?, ?, ?)').run('SecurityClub', 'Default club for CTF and study posts.', 'KAIST');
+        }
+        
+        db.exec(`
+            CREATE TABLE IF NOT EXISTS Event (
+                id TEXT PRIMARY KEY,
+                clubName TEXT,
+                category TEXT CHECK(category IN ('STUDY', 'CTF', 'PROJECT')),
+                field TEXT,
+                eventDate TEXT,
+                recruitmentCount INTEGER,
+                difficulty TEXT CHECK(difficulty IN ('LOW', 'MID', 'HIGH')),
+                title TEXT NOT NULL,
+                description TEXT,
+                authorId INTEGER, 
+                CreatedAt TEXT DEFAULT (datetime('now')),
+                UpdatedAt TEXT DEFAULT (datetime('now')),
+                FOREIGN KEY(clubName) REFERENCES Club(clubName),
+                FOREIGN KEY(authorId) REFERENCES users(id) 
+            )
+        `);
+        
+        app.use('/events', eventRouter);
+    } catch (error) {
+        console.error("FATAL ERROR: Database initialization (Event/Club) failed.", error);
+    }
+} else {
+    console.log("WARNING: Database connection failed. /events router not connected.");
+}
+
+
 app.use('/auth', authRouter);
+app.use('/clubs', clubRouter);
 
 app.get('/', (req, res) => {
-  res.send('Team1 Service is Running!');
+    res.send('Team1 Service is Running!');
 });
 
-app.use('/api/clubs', clubRoutes);
-
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`INFO: Server is running on http://localhost:${PORT}`);
 });
