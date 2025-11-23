@@ -12,20 +12,40 @@ router.get('/', (req, res) => {
         // 각 동아리에 멤버 정보 추가
         const clubsWithMembers = clubs.map(club => {
             const members = db.prepare(`
-                SELECT id, name, username
+                SELECT id, name, username, tags
                 FROM users
                 WHERE clubName = ?
+                ORDER BY 
+                    CASE 
+                        WHEN tags LIKE '%회장%' THEN 1
+                        WHEN tags LIKE '%운영진%' THEN 2
+                        ELSE 3
+                    END,
+                    id
             `).all(club.clubName);
 
-            // 멤버에 tags 추가 (첫 번째 사용자는 회장, 나머지는 부원)
-            const membersWithTags = members.map((member, index) => ({
-                name: member.name,
-                username: member.username.startsWith('@') ? member.username : `@${member.username}`,
-                tags: index === 0 ? ['회장'] : ['부원']
-            }));
+            // 멤버에 tags 추가 (DB에 저장된 tags 사용, 없으면 첫 번째는 회장, 나머지는 부원)
+            const membersWithTags = members.map((member, index) => {
+                let tags = ['부원'];
+                if (member.tags) {
+                    try {
+                        tags = JSON.parse(member.tags);
+                    } catch (e) {
+                        tags = index === 0 ? ['회장'] : ['부원'];
+                    }
+                } else {
+                    tags = index === 0 ? ['회장'] : ['부원'];
+                }
+                return {
+                    name: member.name,
+                    username: member.username.startsWith('@') ? member.username : `@${member.username}`,
+                    tags: tags
+                };
+            });
 
             return {
                 ...club,
+                name: club.clubName,  // 프론트엔드 호환성을 위해 name 필드 추가
                 members: membersWithTags,
                 president: membersWithTags.length > 0 ? membersWithTags[0].name : null
             };
@@ -59,17 +79,36 @@ router.get('/:id', (req, res) => {
 
         // 멤버 정보 조회
         const members = db.prepare(`
-            SELECT id, name, username
+            SELECT id, name, username, tags
             FROM users
             WHERE clubName = ?
+            ORDER BY 
+                CASE 
+                    WHEN tags LIKE '%회장%' THEN 1
+                    WHEN tags LIKE '%운영진%' THEN 2
+                    ELSE 3
+                END,
+                id
         `).all(club.clubName);
 
-        // 멤버에 tags 추가
-        const membersWithTags = members.map((member, index) => ({
-            name: member.name,
-            username: member.username.startsWith('@') ? member.username : `@${member.username}`,
-            tags: index === 0 ? ['회장'] : ['부원']
-        }));
+        // 멤버에 tags 추가 (DB에 저장된 tags 사용, 없으면 첫 번째는 회장, 나머지는 부원)
+        const membersWithTags = members.map((member, index) => {
+            let tags = ['부원'];
+            if (member.tags) {
+                try {
+                    tags = JSON.parse(member.tags);
+                } catch (e) {
+                    tags = index === 0 ? ['회장'] : ['부원'];
+                }
+            } else {
+                tags = index === 0 ? ['회장'] : ['부원'];
+            }
+            return {
+                name: member.name,
+                username: member.username.startsWith('@') ? member.username : `@${member.username}`,
+                tags: tags
+            };
+        });
 
         // 이벤트 정보 조회
         const events = db.prepare(`
@@ -81,7 +120,8 @@ router.get('/:id', (req, res) => {
         return res.json({
             success: true,
             data: { 
-                ...club, 
+                ...club,
+                name: club.clubName,  // 프론트엔드 호환성을 위해 name 필드 추가
                 members: membersWithTags,
                 president: membersWithTags.length > 0 ? membersWithTags[0].name : null,
                 events 
