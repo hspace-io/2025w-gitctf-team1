@@ -7,7 +7,8 @@ const db = require('./db');
 
 // 라우터 불러오기
 const authRouter = require('./routes/auth'); 
-const eventRouter = require('./routes/event'); // 팀원이 추가한 이벤트 라우터
+const eventRouter = require('./routes/event.js'); 
+const clubRouter = require('./routes/club.js');
 
 const app = express();
 const PORT = 4000;
@@ -16,10 +17,10 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-// 1. DB 연결 확인 및 테이블 초기화
+// DB 초기화 및 테이블 생성
 if (db) {
     try {
-        // (1) 유저 테이블 생성 (사용자님 코드)
+        // 1. Users 테이블 생성 (사용자님 코드 + 팀원 코드 통합)
         db.prepare(`
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -34,7 +35,7 @@ if (db) {
         `).run();
         console.log("Users table initialized");
 
-        // (2) 동아리 테이블 생성 (팀원 코드)
+        // 2. Club 테이블 생성 (팀원 코드)
         db.exec(`
             CREATE TABLE IF NOT EXISTS Club (
                 clubName TEXT PRIMARY KEY,
@@ -49,7 +50,7 @@ if (db) {
             db.prepare('INSERT INTO Club (clubName, description, schoolName) VALUES (?, ?, ?)').run('SecurityClub', 'Default club for CTF and study posts.', 'KAIST');
         }
 
-        // (3) 이벤트 테이블 생성 (팀원 코드)
+        // 3. Event 테이블 생성 (팀원 코드 - Users와 Club 테이블을 참조함)
         db.exec(`
             CREATE TABLE IF NOT EXISTS Event (
                 id TEXT PRIMARY KEY,
@@ -61,9 +62,11 @@ if (db) {
                 difficulty TEXT CHECK(difficulty IN ('LOW', 'MID', 'HIGH')),
                 title TEXT NOT NULL,
                 description TEXT,
+                authorId INTEGER, 
                 CreatedAt TEXT DEFAULT (datetime('now')),
                 UpdatedAt TEXT DEFAULT (datetime('now')),
-                FOREIGN KEY(clubName) REFERENCES Club(clubName)
+                FOREIGN KEY(clubName) REFERENCES Club(clubName),
+                FOREIGN KEY(authorId) REFERENCES users(id) 
             )
         `);
         console.log("Club & Event tables initialized");
@@ -75,16 +78,15 @@ if (db) {
     console.log("WARNING: Database connection failed. Tables not initialized.");
 }
 
-// 2. 라우터 등록
-app.use('/auth', authRouter);   // 로그인, 회원가입
-app.use('/events', eventRouter); // 이벤트(게시판)
+// 라우터 등록 (모두 통합)
+app.use('/auth', authRouter);
+app.use('/events', eventRouter);
+app.use('/clubs', clubRouter);
 
-// 3. 기본 라우트
 app.get('/', (req, res) => {
     res.send('Team1 Service is Running!');
 });
 
-// 4. 서버 실행
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`INFO: Server is running on http://localhost:${PORT}`);
 });
