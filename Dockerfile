@@ -50,6 +50,9 @@ RUN npm install
 # 소스 코드 복사
 COPY . .
 
+# 프론트엔드 빌드 (React 앱을 정적 파일로 빌드)
+RUN npm run build
+
 # Don't Touch
 RUN mkdir -p /var/ctf
 COPY flag /var/ctf/
@@ -57,4 +60,4 @@ COPY flag /var/ctf/
 # Build and run your service here
 # 포트 노출 및 서버 실행
 EXPOSE 4000
-CMD ["node", "app.js"]
+CMD ["node", "app.cjs"]

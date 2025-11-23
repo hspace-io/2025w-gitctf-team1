@@ -1,4 +1,4 @@
-const db = require("../db");
+const db = require("../db.cjs");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -15,7 +15,10 @@ const authController = {
             const existingUser = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
             
             if (existingUser) {
-                return res.status(400).json({ message: "이미 존재하는 아이디입니다." });
+                return res.status(400).json({ 
+                    success: false,
+                    message: "이미 존재하는 아이디입니다." 
+                });
             }
 
             // 비밀번호 암호화
@@ -30,11 +33,18 @@ const authController = {
             const info = insertQuery.run(username, hashedPassword, name, schoolName, clubName, 0);
 
             // info.lastInsertRowid 로 생성된 ID 확인 가능
-            res.status(201).json({ message: "회원가입 성공", userId: info.lastInsertRowid });
+            res.status(201).json({ 
+                success: true,
+                message: "회원가입 성공", 
+                userId: info.lastInsertRowid 
+            });
 
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: "서버 에러" });
+            res.status(500).json({ 
+                success: false,
+                message: "서버 에러" 
+            });
         }
     },
 
@@ -47,13 +57,19 @@ const authController = {
             const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
 
             if (!user) {
-                return res.status(401).json({ message: "아이디 또는 비밀번호가 틀렸습니다." });
+                return res.status(401).json({ 
+                    success: false,
+                    message: "아이디 또는 비밀번호가 틀렸습니다." 
+                });
             }
 
             // 비밀번호 검증
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) {
-                return res.status(401).json({ message: "아이디 또는 비밀번호가 틀렸습니다." });
+                return res.status(401).json({ 
+                    success: false,
+                    message: "아이디 또는 비밀번호가 틀렸습니다." 
+                });
             }
 
             // 토큰 발급 
@@ -68,18 +84,25 @@ const authController = {
             );
 
             res.json({
+                success: true,
                 message: "로그인 성공",
                 token,
                 user: {
                     id: user.id,
+                    username: user.username,
                     name: user.name,
+                    schoolName: user.schoolName,
+                    clubName: user.clubName,
                     isAdmin: !!user.isAdmin
                 }
             });
 
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: "서버 에러" });
+            res.status(500).json({ 
+                success: false,
+                message: "서버 에러" 
+            });
         }
     }
 };

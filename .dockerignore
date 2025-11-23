@@ -1,3 +1,11 @@
 node_modules
 npm-debug.log
-data/*.db
+.git
+.gitignore
+README.md
+.env
+.env.*
+dist
+.vscode
+.idea
+*.md

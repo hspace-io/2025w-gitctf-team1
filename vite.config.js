@@ -6,6 +6,20 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
-    open: true
+    open: true,
+    proxy: {
+      '/auth': {
+        target: 'http://localhost:4000',
+        changeOrigin: true
+      },
+      '/events': {
+        target: 'http://localhost:4000',
+        changeOrigin: true
+      },
+      '/clubs': {
+        target: 'http://localhost:4000',
+        changeOrigin: true
+      }
+    }
   }
 })

@@ -1,14 +1,15 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const path = require('path');
 
 // DB 연결
-const db = require('./db'); 
+const db = require('./db.cjs'); 
 
 // 라우터 불러오기
-const authRouter = require('./routes/auth'); 
-const eventRouter = require('./routes/event.js'); 
-const clubRouter = require('./routes/club.js');
+const authRouter = require('./routes/auth.cjs'); 
+const eventRouter = require('./routes/event.cjs'); 
+const clubRouter = require('./routes/club.cjs');
 
 const app = express();
 const PORT = 4000;
@@ -16,6 +17,11 @@ const PORT = 4000;
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
+
+// 프로덕션 환경에서 정적 파일 제공 (빌드된 React 앱)
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, 'dist')));
+}
 
 // DB 초기화 및 테이블 생성
 if (db) {
@@ -38,9 +44,11 @@ if (db) {
         // 2. Club 테이블 생성 (팀원 코드)
         db.exec(`
             CREATE TABLE IF NOT EXISTS Club (
-                clubName TEXT PRIMARY KEY,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                clubName TEXT UNIQUE NOT NULL,
                 description TEXT,
-                schoolName TEXT NOT NULL 
+                schoolName TEXT NOT NULL,
+                activities TEXT
             );
         `);
 
@@ -83,9 +91,19 @@ app.use('/auth', authRouter);
 app.use('/events', eventRouter);
 app.use('/clubs', clubRouter);
 
-app.get('/', (req, res) => {
-    res.send('Team1 Service is Running!');
-});
+// 개발 환경에서만 보이는 API 테스트 페이지
+if (process.env.NODE_ENV !== 'production') {
+    app.get('/', (req, res) => {
+        res.send('Team1 Service is Running!');
+    });
+}
+
+// 프로덕션: 모든 요청을 React 앱으로 전달 (SPA 라우팅)
+if (process.env.NODE_ENV === 'production') {
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+    });
+}
 
 app.listen(PORT, () => {
     console.log(`INFO: Server is running on http://localhost:${PORT}`);

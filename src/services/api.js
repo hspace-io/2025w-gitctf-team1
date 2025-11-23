@@ -2,12 +2,13 @@
 // 백엔드 연동 시 이 파일만 수정하면 됩니다!
 
 const API_CONFIG = {
-  // 개발 환경: localStorage 사용
-  USE_LOCAL_STORAGE: true,
-
-  // 백엔드 연동 시 아래 주석을 해제하고 USE_LOCAL_STORAGE를 false로 변경하세요
-  // USE_LOCAL_STORAGE: false,
-  // BASE_URL: 'http://localhost:5000/api',  // 또는 실제 백엔드 URL
+  // 백엔드 API 연동 모드
+  USE_LOCAL_STORAGE: false,
+  
+  // API 베이스 URL
+  // 개발: vite proxy를 통해 /auth, /events, /clubs 요청이 localhost:4000으로 전달됨
+  // 프로덕션: 같은 서버(4000)에서 API와 프론트엔드 모두 제공
+  BASE_URL: '',  // 상대 경로 사용 (proxy가 처리)
 };
 
 // 로컬스토리지 키
@@ -105,7 +106,9 @@ class API {
     } else {
       const response = await fetch(`${API_CONFIG.BASE_URL}${endpoint}`);
       if (!response.ok) throw new Error('Network response was not ok');
-      return response.json();
+      const result = await response.json();
+      // 백엔드가 {success: true, data: [...]} 형식으로 반환하면 data만 추출
+      return result.data !== undefined ? result.data : result;
     }
   }
 
@@ -119,8 +122,13 @@ class API {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      if (!response.ok) throw new Error('Network response was not ok');
-      return response.json();
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Network response was not ok');
+      }
+      const result = await response.json();
+      // 백엔드가 {success: true, data: {...}} 형식으로 반환하면 data만 추출
+      return result.data !== undefined ? result.data : result;
     }
   }
 
@@ -135,7 +143,9 @@ class API {
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error('Network response was not ok');
-      return response.json();
+      const result = await response.json();
+      // 백엔드가 {success: true, data: {...}} 형식으로 반환하면 data만 추출
+      return result.data !== undefined ? result.data : result;
     }
   }
 
@@ -148,7 +158,9 @@ class API {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Network response was not ok');
-      return response.json();
+      const result = await response.json();
+      // 백엔드가 {success: true, ...} 형식으로 반환
+      return result;
     }
   }
 
@@ -162,8 +174,13 @@ class API {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
-      if (!response.ok) throw new Error('Login failed');
-      return response.json();
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Login failed');
+      }
+      const result = await response.json();
+      // 백엔드가 {success: true, token, user} 형식으로 반환
+      return result;
     }
   }
 
@@ -177,8 +194,13 @@ class API {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData),
       });
-      if (!response.ok) throw new Error('Sign up failed');
-      return response.json();
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Sign up failed');
+      }
+      const result = await response.json();
+      // 백엔드가 {success: true, ...} 형식으로 반환
+      return result;
     }
   }
 
