@@ -5,7 +5,7 @@ const morgan = require('morgan');
 const db = require('./db.js');
 const authRouter = require('./routes/auth'); 
 const eventRouter = require('./routes/event.js'); 
-
+const clubRouter = require('./routes/club.js');
 
 const app = express();
 const PORT = 4000;
@@ -76,6 +76,7 @@ if (db) {
 
 
 app.use('/auth', authRouter);
+app.use('/clubs', clubRouter);
 
 app.get('/', (req, res) => {
     res.send('Team1 Service is Running!');

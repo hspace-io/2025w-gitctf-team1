@@ -1,10 +1,8 @@
-const Database = require('better-sqlite3');
-const path = require('path');
+const Database = require('better-sqlite3'); //npm install better-sqlite3
 
-// DB 파일 경로설정 data 폴더가 프로젝트 루트에 있어야 함
-const DATABASE_FILE = path.join(path.resolve(), 'data', 'frontierCTF.db');
-
-let dbInstance;
+const db = new Database('./data/frontierCTF.db', {
+  verbose: console.log  
+});
 
 try {
     dbInstance = new Database(DATABASE_FILE, {
@@ -19,4 +17,4 @@ try {
     dbInstance = null;
 }
 
-module.exports = dbInstance;
+module.exports = db;
