@@ -1,0 +1,392 @@
+.post-write {
+  min-height: 100vh;
+  background-color: #ffffff;
+  padding: 80px 20px 40px;
+}
+
+.post-write-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.write-header {
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #000000;
+}
+
+.write-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #000000;
+  letter-spacing: -0.5px;
+}
+
+.write-form {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #000000;
+  letter-spacing: 0.5px;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 15px;
+  border: 2px solid #e0e0e0;
+  background-color: #ffffff;
+  color: #000000;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #000000;
+}
+
+.form-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23000' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+  color: #000000;
+}
+
+.form-select option {
+  color: #000000;
+  background-color: #ffffff;
+}
+
+/* 날짜 입력 필드 스타일 */
+input[type="date"] {
+  cursor: pointer;
+  position: relative;
+  color: #000000;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  cursor: pointer;
+  position: absolute;
+  right: 16px;
+  width: 20px;
+  height: 20px;
+  z-index: 1;
+}
+
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-clear-button {
+  display: none;
+}
+
+input[type="date"]::-webkit-datetime-edit-text,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field {
+  color: #000000;
+  padding: 0;
+}
+
+input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+  color: #000000;
+}
+
+input[type="date"]:focus::-webkit-datetime-edit-text,
+input[type="date"]:focus::-webkit-datetime-edit-month-field,
+input[type="date"]:focus::-webkit-datetime-edit-day-field,
+input[type="date"]:focus::-webkit-datetime-edit-year-field {
+  color: #000000;
+}
+
+/* 일시 입력 그룹 (기존 디자인 유지) */
+.schedule-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.schedule-input-item {
+  flex: 1;
+  min-width: 0;
+}
+
+.schedule-separator {
+  font-size: 14px;
+  color: #666666;
+  font-weight: 500;
+  flex-shrink: 0;
+  padding: 0 5px;
+}
+
+/* datetime-local 입력 필드 스타일 */
+input[type="datetime-local"] {
+  color: #000000;
+  cursor: pointer;
+  width: 100%;
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  cursor: pointer;
+}
+
+input[type="datetime-local"]::-webkit-datetime-edit-text,
+input[type="datetime-local"]::-webkit-datetime-edit-month-field,
+input[type="datetime-local"]::-webkit-datetime-edit-day-field,
+input[type="datetime-local"]::-webkit-datetime-edit-year-field,
+input[type="datetime-local"]::-webkit-datetime-edit-hour-field,
+input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
+  color: #000000;
+  padding: 0;
+}
+
+input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper {
+  color: #000000;
+}
+
+input[type="datetime-local"]:focus::-webkit-datetime-edit-text,
+input[type="datetime-local"]:focus::-webkit-datetime-edit-month-field,
+input[type="datetime-local"]:focus::-webkit-datetime-edit-day-field,
+input[type="datetime-local"]:focus::-webkit-datetime-edit-year-field,
+input[type="datetime-local"]:focus::-webkit-datetime-edit-hour-field,
+input[type="datetime-local"]:focus::-webkit-datetime-edit-minute-field {
+  color: #000000;
+}
+
+/* 시간 입력 필드 스타일 */
+input[type="time"] {
+  color: #000000;
+  cursor: pointer;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  cursor: pointer;
+}
+
+input[type="time"]::-webkit-datetime-edit-text,
+input[type="time"]::-webkit-datetime-edit-hour-field,
+input[type="time"]::-webkit-datetime-edit-minute-field {
+  color: #000000;
+  padding: 0;
+}
+
+input[type="time"]::-webkit-datetime-edit-fields-wrapper {
+  color: #000000;
+}
+
+input[type="time"]:focus::-webkit-datetime-edit-text,
+input[type="time"]:focus::-webkit-datetime-edit-hour-field,
+input[type="time"]:focus::-webkit-datetime-edit-minute-field {
+  color: #000000;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 300px;
+  line-height: 1.6;
+}
+
+.form-help {
+  font-size: 12px;
+  color: #666666;
+  margin-top: -5px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.btn-cancel,
+.btn-submit {
+  padding: 14px 32px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+  border: 2px solid #000000;
+}
+
+.btn-cancel {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.btn-cancel:hover {
+  background-color: #f5f5f5;
+}
+
+.btn-submit {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.btn-submit:hover {
+  background-color: #333333;
+}
+
+.btn-submit:disabled {
+  background-color: #cccccc;
+  border-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* 파일 업로드 영역 */
+.file-upload-area {
+  position: relative;
+}
+
+.file-input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.file-upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 30px 20px;
+  border: 2px dashed #e0e0e0;
+  background-color: #fafafa;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.file-upload-label:hover {
+  border-color: #000000;
+  background-color: #f5f5f5;
+}
+
+.upload-icon {
+  font-size: 32px;
+  font-weight: 300;
+  color: #999999;
+}
+
+.file-upload-label span:nth-child(2) {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333333;
+}
+
+.upload-hint {
+  font-size: 12px;
+  color: #999999;
+}
+
+.file-list {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 15px;
+  background-color: #f8f8f8;
+  border: 1px solid #e0e0e0;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.file-name {
+  font-size: 14px;
+  color: #333333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 400px;
+}
+
+.file-size {
+  font-size: 12px;
+  color: #999999;
+  white-space: nowrap;
+}
+
+.file-remove-btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid #e0e0e0;
+  color: #999999;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.file-remove-btn:hover {
+  border-color: #000000;
+  color: #000000;
+}
+
+@media (max-width: 768px) {
+  .post-write {
+    padding: 60px 15px 30px;
+  }
+
+  .write-title {
+    font-size: 24px;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .btn-cancel,
+  .btn-submit {
+    width: 100%;
+  }
+
+  .file-name {
+    max-width: 200px;
+  }
+}
