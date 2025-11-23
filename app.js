@@ -32,9 +32,6 @@ try {
 
 app.use('/auth', authRouter);
 
-console.log("[*] Loading SQLite DB...");
-app.set("db", db);
-
 app.get('/', (req, res) => {
   res.send('Team1 Service is Running!');
 });
