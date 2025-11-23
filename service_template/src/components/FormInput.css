@@ -1,0 +1,45 @@
+/* FormInput 컴포넌트 스타일 */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #000000;
+  letter-spacing: 0.3px;
+}
+
+.required {
+  color: #ff4444;
+  margin-left: 2px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 14px;
+  border: 1px solid #d0d0d0;
+  background-color: #fafafa;
+  color: #000000;
+  transition: all 0.3s;
+}
+
+.form-input::placeholder {
+  color: #999999;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #000000;
+  background-color: #ffffff;
+}
+
+.form-input:disabled {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+

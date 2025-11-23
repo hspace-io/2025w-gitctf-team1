@@ -1,0 +1,746 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.club-container {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #f5f5f5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* 상단 네비게이션 바 (intro.css와 동일한 스타일) */
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.7rem 2rem;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  margin: 0;
+}
+
+.nav-left {
+  flex: 0 0 auto;
+}
+
+.logo {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #000000;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.nav-center {
+  display: flex;
+  gap: 2rem;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav-link {
+  padding: 0;
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #000000;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: color 0.2s ease;
+  position: relative;
+  line-height: 1;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: #667eea;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -0.7rem;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #667eea;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
+}
+
+.nav-right {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.login-button {
+  padding: 0.6rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: #000000;
+  border: 1px solid #000000;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  line-height: 1;
+  margin: 0;
+}
+
+.login-button:hover {
+  background-color: #333333;
+  border-color: #333333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* 메인 콘텐츠 영역 */
+.club-main {
+  flex: 1;
+  padding: 2rem 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+.club-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 0 2rem;
+}
+
+.club-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #000000;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.5px;
+}
+
+.club-subtitle {
+  font-size: 1.1rem;
+  color: #666666;
+  margin: 0;
+}
+
+/* 검색 컨테이너 */
+.club-search-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  padding: 0 2rem;
+}
+
+.club-search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #000000;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  background-color: #ffffff;
+  color: #000000;
+  transition: all 0.2s ease;
+}
+
+.club-search-input:focus {
+  outline: none;
+  border-color: #000000;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.club-search-input::placeholder {
+  color: #999999;
+}
+
+/* 동아리 목록 */
+.club-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  width: 100%;
+  padding: 0 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.club-card {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.club-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border-color: #cccccc;
+}
+
+.club-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.club-card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #000000;
+  margin: 0;
+}
+
+.club-category {
+  padding: 0.3rem 0.8rem;
+  background-color: #000000;
+  color: #ffffff;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.club-card-description {
+  font-size: 0.95rem;
+  color: #666666;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.club-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.club-member-count {
+  font-size: 0.9rem;
+  color: #999999;
+}
+
+.club-empty-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #666666;
+  font-size: 1.1rem;
+}
+
+/* 모달 오버레이 */
+.club-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 2rem;
+}
+
+.club-modal {
+  background-color: #ffffff;
+  border-radius: 12px;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.club-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #000000;
+  cursor: pointer;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.club-modal-close:hover {
+  background-color: #f0f0f0;
+  color: #000000;
+}
+
+.club-modal-content {
+  padding: 2.5rem;
+}
+
+.club-modal-title {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #000000;
+  margin-bottom: 0.5rem;
+}
+
+.club-modal-school {
+  font-size: 1rem;
+  color: #666666;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.club-modal-category {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  background-color: #ffffff;
+  color: #000000;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.club-modal-description {
+  font-size: 1rem;
+  color: #666666;
+  line-height: 1.8;
+  margin-bottom: 2rem;
+}
+
+/* 부원 리스트 컨테이너 */
+.club-members-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+/* 부원 아이템 */
+.club-member-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+  border: 1px solid #e0e0e0;
+}
+
+.club-member-item:hover {
+  background-color: #eeeeee;
+}
+
+.member-profile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.member-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.member-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.member-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #000000;
+}
+
+.member-username {
+  font-size: 0.85rem;
+  color: #666666;
+}
+
+.member-alias {
+  font-size: 0.85rem;
+  color: #000000;
+  font-weight: 500;
+}
+
+.member-tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  flex: 1;
+  justify-content: center;
+  margin: 0 1rem;
+}
+
+.member-tag {
+  padding: 0.3rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.tag-web {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+.tag-lead {
+  background-color: #f97316;
+  color: #ffffff;
+}
+
+.tag-web3 {
+  background-color: #f97316;
+  color: #ffffff;
+}
+
+.tag-crypto {
+  background-color: #a855f7;
+  color: #ffffff;
+}
+
+.tag-reverse {
+  background-color: #a855f7;
+  color: #ffffff;
+}
+
+.tag-pwnable {
+  background-color: #ef4444;
+  color: #ffffff;
+}
+
+.tag-forensic {
+  background-color: #10b981;
+  color: #ffffff;
+}
+
+.tag-gamer {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+.tag-ai {
+  background-color: #8b5cf6;
+  color: #ffffff;
+}
+
+.tag-ml {
+  background-color: #8b5cf6;
+  color: #ffffff;
+}
+
+.tag-data {
+  background-color: #06b6d4;
+  color: #ffffff;
+}
+
+/* 역할 태그 스타일 */
+.tag-president {
+  background-color: #f59e0b;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.tag-executive {
+  background-color: #3b82f6;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.tag-member {
+  background-color: #10b981;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+/* 멤버 편집/삭제 기능 */
+.member-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: 1rem;
+}
+
+.edit-button,
+.delete-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+}
+
+.edit-button:hover,
+.delete-button:hover {
+  background-color: #e0e0e0;
+}
+
+.edit-icon {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #666666;
+  border-radius: 2px;
+  position: relative;
+  display: block;
+}
+
+.edit-icon::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid #666666;
+  border-top: 4px solid #666666;
+  border-bottom: 4px solid transparent;
+}
+
+.edit-button:hover .edit-icon {
+  border-color: #667eea;
+}
+
+.edit-button:hover .edit-icon::after {
+  border-right-color: #667eea;
+  border-top-color: #667eea;
+}
+
+.delete-icon {
+  width: 16px;
+  height: 16px;
+  position: relative;
+  display: block;
+}
+
+.delete-icon::before,
+.delete-icon::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 2px;
+  background-color: #666666;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.delete-icon::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.delete-button:hover .delete-icon::before,
+.delete-button:hover .delete-icon::after {
+  background-color: #ef4444;
+}
+
+.member-edit-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem;
+}
+
+.edit-form-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit-input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #000000;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.edit-input:focus {
+  outline: none;
+  border-color: #000000;
+}
+
+.edit-form-tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.edit-tag-button {
+  padding: 0.4rem 0.8rem;
+  border: 2px solid #000000;
+  background-color: #ffffff;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #000000;
+}
+
+.edit-tag-button:hover {
+  border-color: #000000;
+  background-color: #f5f5f5;
+  color: #000000;
+}
+
+.edit-tag-button.active {
+  border-color: #000000;
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.edit-form-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.save-button,
+.cancel-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.save-button {
+  background-color: #000000;
+  color: #ffffff;
+  border: 1px solid #000000;
+}
+
+.save-button:hover {
+  background-color: #333333;
+  border-color: #333333;
+}
+
+.cancel-button {
+  background-color: #ffffff;
+  color: #000000;
+  border: 1px solid #000000;
+}
+
+.cancel-button:hover {
+  background-color: #f5f5f5;
+  border-color: #000000;
+}
+
+/* 삭제 확인 다이얼로그 */
+.delete-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.delete-confirm-modal {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.delete-confirm-modal p {
+  font-size: 1.1rem;
+  color: #000000;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.delete-confirm-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.confirm-delete-button,
+.cancel-delete-button {
+  padding: 0.6rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.confirm-delete-button {
+  background-color: #ef4444;
+  color: #ffffff;
+}
+
+.confirm-delete-button:hover {
+  background-color: #dc2626;
+}
+
+.cancel-delete-button {
+  background-color: #e0e0e0;
+  color: #000000;
+}
+
+.cancel-delete-button:hover {
+  background-color: #d0d0d0;
+}
+
