@@ -1,0 +1,114 @@
+.login-page {
+  min-height: calc(100vh - 80px);
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 500px;
+}
+
+.login-card {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  padding: 60px 50px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.login-title {
+  font-size: 32px;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 10px;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.login-subtitle {
+  font-size: 14px;
+  color: #666666;
+  text-align: center;
+  margin-bottom: 40px;
+  line-height: 1.5;
+}
+
+.login-error {
+  background-color: #fee;
+  border: 1px solid #fcc;
+  color: #c33;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  border-radius: 4px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* FormInput 컴포넌트를 사용하므로 form-group, form-input 스타일은 FormInput.css에 있음 */
+
+.login-button {
+  width: 100%;
+  padding: 16px;
+  background-color: #000000;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  border: none;
+  margin-top: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.login-button:hover:not(:disabled) {
+  background-color: #333333;
+  transform: translateY(-1px);
+}
+
+.login-button:disabled {
+  background-color: #999999;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.login-footer {
+  text-align: center;
+  margin-top: 30px;
+  font-size: 14px;
+  color: #666666;
+}
+
+.signup-link {
+  color: #000000;
+  font-weight: 600;
+  text-decoration: underline;
+  margin-left: 4px;
+  transition: color 0.2s;
+}
+
+.signup-link:hover {
+  color: #333333;
+}
+
+@media (max-width: 768px) {
+  .login-card {
+    padding: 40px 30px;
+  }
+
+  .login-title {
+    font-size: 26px;
+  }
+
+  .login-subtitle {
+    font-size: 13px;
+  }
+}
+
